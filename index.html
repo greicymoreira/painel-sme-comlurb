@@ -3,1577 +3,1813 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel SME · COMLURB</title>
+<title>COMLURB — Painel SME Limpeza Escolar</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
-  :root {
-    --orange: #F97316;
-    --orange-dim: rgba(249,115,22,0.15);
-    --orange-glow: rgba(249,115,22,0.35);
-
-    /* Navy Frio (default) */
-    --bg-base: #0A0F1E;
-    --bg-card: #0F1729;
-    --bg-card2: #131D35;
-    --bg-hover: #1A2540;
-    --border: rgba(255,255,255,0.07);
-    --border-accent: rgba(249,115,22,0.3);
-    --text-primary: #E8EDF8;
-    --text-secondary: #7A8BAD;
-    --text-muted: #4A5A7A;
-    --green: #22D3A0;
-    --green-dim: rgba(34,211,160,0.15);
-    --red: #F43F5E;
-    --red-dim: rgba(244,63,94,0.15);
-    --yellow: #FACC15;
-    --yellow-dim: rgba(250,204,21,0.15);
-    --blue-accent: #3B82F6;
-  }
-
-  body.navy-quente {
-    --bg-base: #100A05;
-    --bg-card: #1A0F07;
-    --bg-card2: #22140A;
-    --bg-hover: #2A1C10;
-    --border: rgba(255,255,255,0.07);
-    --text-secondary: #9A7A5A;
-    --text-muted: #5A3A20;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg-base);
-    color: var(--text-primary);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* ── TOPBAR ── */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    height: 56px;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .logo-mark {
-    width: 32px; height: 32px;
-    background: var(--orange);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; color: #fff;
-    letter-spacing: -0.5px;
-  }
-
-  .logo-text {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    letter-spacing: -0.3px;
-  }
-
-  .logo-sub {
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-weight: 400;
-  }
-
-  .page-tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--bg-base);
-    padding: 4px;
-    border-radius: 10px;
-  }
-
-  .page-tab {
-    padding: 6px 18px;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-  }
-
-  .page-tab.active {
-    background: var(--orange);
-    color: #fff;
-  }
-
-  .page-tab:hover:not(.active) {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .theme-toggle {
-    display: flex;
-    gap: 2px;
-    background: var(--bg-base);
-    padding: 3px;
-    border-radius: 8px;
-  }
-
-  .theme-btn {
-    padding: 4px 10px;
-    border-radius: 5px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-  }
-
-  .theme-btn.active {
-    background: var(--bg-card2);
-    color: var(--text-primary);
-  }
-
-  .topbar-date {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-family: 'DM Mono', monospace;
-  }
-
-  /* ── FILTER BAR ── */
-  .filterbar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 28px;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-
-  .filter-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    font-weight: 600;
-    margin-right: 4px;
-  }
-
-  .filter-select {
-    background: var(--bg-base);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    outline: none;
-  }
-
-  .filter-select:focus { border-color: var(--orange); }
-
-  .filter-divider {
-    width: 1px; height: 20px;
-    background: var(--border);
-  }
-
-  .methodology-toggle {
-    display: flex;
-    gap: 2px;
-    background: var(--bg-base);
-    padding: 3px;
-    border-radius: 8px;
-    margin-left: auto;
-  }
-
-  .meth-btn {
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    transition: all 0.2s;
-  }
-
-  .meth-btn.active {
-    background: var(--orange-dim);
-    color: var(--orange);
-    border: 1px solid var(--border-accent);
-  }
-
-  /* ── PAGES ── */
-  .page { display: none; padding: 24px 28px; }
-  .page.active { display: block; }
-
-  /* ── KPI GRID ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .kpi-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-
-  .kpi-card:hover { border-color: var(--border-accent); }
-
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--orange);
-    opacity: 0.5;
-  }
-
-  .kpi-label {
-    font-size: 11px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  .kpi-value {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .kpi-value span {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-
-  .kpi-deltas {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .kpi-delta {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .delta-up { color: var(--red); }
-  .delta-down { color: var(--green); }
-  .delta-neutral { color: var(--text-muted); }
-
-  .delta-label {
-    color: var(--text-muted);
-    font-size: 10px;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  /* ── MAIN GRID ── */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-  }
-
-  .card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-title-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--orange);
-  }
-
-  /* ── NARRATIVE CARD ── */
-  .narrative-bullets {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .narrative-bullet {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 12px;
-    background: var(--bg-card2);
-    border-radius: 8px;
-    border-left: 3px solid var(--orange);
-  }
-
-  .narrative-bullet.green { border-left-color: var(--green); }
-  .narrative-bullet.red { border-left-color: var(--red); }
-  .narrative-bullet.yellow { border-left-color: var(--yellow); }
-
-  .bullet-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .bullet-text {
-    font-size: 13px;
-    color: var(--text-primary);
-    line-height: 1.5;
-  }
-
-  .bullet-text strong { color: var(--orange); font-weight: 600; }
-  .narrative-bullet.green .bullet-text strong { color: var(--green); }
-  .narrative-bullet.red .bullet-text strong { color: var(--red); }
-  .narrative-bullet.yellow .bullet-text strong { color: var(--yellow); }
-
-  /* ── CHART ── */
-  .chart-wrap {
-    position: relative;
-    height: 280px;
-  }
-
-  /* ── BOTTOM GRID ── */
-  .bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  /* ── RANKING ── */
-  .ranking-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .ranking-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--bg-card2);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    transition: border-color 0.15s;
-  }
-
-  .ranking-item:hover { border-color: var(--border-accent); }
-
-  .rank-pos {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    font-family: 'DM Mono', monospace;
-    width: 20px;
-    text-align: center;
-  }
-
-  .rank-pos.top1 { color: var(--red); }
-  .rank-pos.top2 { color: var(--orange); }
-  .rank-pos.top3 { color: var(--yellow); }
-
-  .rank-info { flex: 1; }
-
-  .rank-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .rank-sub {
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-family: 'DM Mono', monospace;
-  }
-
-  .rank-bar-wrap {
-    width: 80px;
-  }
-
-  .rank-bar-bg {
-    height: 4px;
-    background: var(--bg-base);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 3px;
-  }
-
-  .rank-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--orange);
-    transition: width 0.6s ease;
-  }
-
-  .rank-val {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    color: var(--text-secondary);
-    text-align: right;
-  }
-
-  .badge-deterioration {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: var(--red-dim);
-    color: var(--red);
-    border: 1px solid rgba(244,63,94,0.3);
-    padding: 2px 7px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-
-  /* ── TREND TABS ── */
-  .trend-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 14px;
-  }
-
-  .trend-tab {
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-  }
-
-  .trend-tab.active {
-    background: var(--orange-dim);
-    color: var(--orange);
-    border-color: var(--border-accent);
-  }
-
-  /* ── ATYPICAL MONTH LEGEND ── */
-  .atypical-legend {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-
-  .legend-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-  }
-
-  /* ── PAGE ANALÍTICA ── */
-  .analytic-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .heatmap-wrap {
-    overflow-x: auto;
-  }
-
-  .heatmap-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 3px;
-    font-size: 11px;
-  }
-
-  .heatmap-table th {
-    color: var(--text-muted);
-    font-weight: 600;
-    padding: 4px 6px;
-    text-align: center;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .heatmap-table td {
-    padding: 6px 8px;
-    border-radius: 5px;
-    text-align: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    cursor: default;
-    transition: transform 0.1s;
-  }
-
-  .heatmap-table td:hover { transform: scale(1.05); }
-
-  .hm-label {
-    text-align: left !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 600 !important;
-    color: var(--text-secondary) !important;
-    background: transparent !important;
-    font-size: 11px !important;
-    padding-right: 12px !important;
-    white-space: nowrap;
-  }
-
-  .hm-green { background: rgba(34,211,160,0.2); color: var(--green); }
-  .hm-yellow { background: rgba(250,204,21,0.2); color: var(--yellow); }
-  .hm-red { background: rgba(244,63,94,0.2); color: var(--red); }
-  .hm-empty { background: var(--bg-card2); color: var(--text-muted); }
-
-  /* ── TABLE ── */
-  .detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  .detail-table th {
-    padding: 8px 12px;
-    text-align: left;
-    color: var(--text-muted);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .detail-table td {
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-primary);
-  }
-
-  .detail-table tr:hover td { background: var(--bg-hover); }
-
-  .status-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-  }
-
-  .status-green { background: var(--green-dim); color: var(--green); }
-  .status-yellow { background: var(--yellow-dim); color: var(--yellow); }
-  .status-red { background: var(--red-dim); color: var(--red); }
-
-  /* ── SCOREBOARD ── */
-  .scoreboard-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-
-  .score-card {
-    background: var(--bg-card2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-    transition: border-color 0.2s;
-  }
-
-  .score-card:hover { border-color: var(--border-accent); }
-
-  .score-cre { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-  .score-exec { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
-  .score-label { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
-
-  .score-status {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-
-  .score-ok { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,211,160,0.3); }
-  .score-att { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(250,204,21,0.3); }
-  .score-crit { background: var(--red-dim); color: var(--red); border: 1px solid rgba(244,63,94,0.3); }
-
-  /* ── KPI ANALÍTICA ── */
-  .kpi-mini-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  .kpi-mini {
-    background: var(--bg-card2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-  }
-
-  .kpi-mini-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
-  .kpi-mini-val { font-size: 20px; font-weight: 700; color: var(--text-primary); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 1200px) {
-    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-    .main-grid { grid-template-columns: 1fr; }
-    .scoreboard-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg-base); }
-  ::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 3px; }
+:root {
+  --navy: #0B1628;
+  --navy-mid: #112240;
+  --navy-card: #172B4D;
+  --navy-border: #1E3A5F;
+  --navy-hover: #1C3353;
+  --orange: #F97316;
+  --orange-dim: rgba(249,115,22,0.15);
+  --orange-glow: rgba(249,115,22,0.3);
+  --text-primary: #E8EDF5;
+  --text-secondary: #8BA3C0;
+  --text-muted: #4A6480;
+  --green: #22C55E;
+  --red: #EF4444;
+  --yellow: #EAB308;
+  --green-dim: rgba(34,197,94,0.12);
+  --red-dim: rgba(239,68,68,0.12);
+  --yellow-dim: rgba(234,179,8,0.12);
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+.theme-warm {
+  --navy: #12100E;
+  --navy-mid: #1C1510;
+  --navy-card: #251C14;
+  --navy-border: #3A2A1A;
+  --navy-hover: #2D2016;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--navy);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--navy-mid);
+  border-bottom: 1px solid var(--navy-border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.header-logo .dot {
+  width: 8px; height: 8px;
+  background: var(--orange);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--orange-glow);
+}
+.header-divider { width:1px; height:24px; background:var(--navy-border); }
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+}
+.nav-tab {
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.18s;
+  border: none;
+  background: transparent;
+}
+.nav-tab:hover { background: var(--navy-border); color: var(--text-primary); }
+.nav-tab.active { background: var(--orange-dim); color: var(--orange); }
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.toggle-pill {
+  width: 36px; height: 20px;
+  background: var(--navy-border);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-pill.on { background: var(--orange-dim); border: 1px solid var(--orange); }
+.toggle-pill::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: left 0.2s, background 0.2s;
+}
+.toggle-pill.on::after { left: 19px; background: var(--orange); }
+.badge-contrato {
+  background: var(--orange-dim);
+  border: 1px solid var(--orange-glow);
+  color: var(--orange);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: var(--mono);
+}
+
+/* ── FILTERS BAR ── */
+.filters-bar {
+  background: var(--navy-mid);
+  border-bottom: 1px solid var(--navy-border);
+  padding: 10px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.filter-select {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-select:focus { border-color: var(--orange); }
+.period-mode-group {
+  display: flex;
+  gap: 2px;
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+.period-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.period-btn.active { background: var(--orange); color: #fff; font-weight: 600; }
+.vis-toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.vis-toggle .vis-option {
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.vis-toggle .vis-option.active {
+  background: var(--orange-dim);
+  color: var(--orange);
+}
+
+/* ── PAGE SECTIONS ── */
+.page { display: none; }
+.page.active { display: block; }
+.content { padding: 20px 28px; }
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.kpi-card:hover { border-color: var(--orange-glow); }
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--orange);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.kpi-card:hover::before { opacity: 1; }
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--mono);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.kpi-value.orange { color: var(--orange); }
+.kpi-deltas {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.kpi-delta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: var(--mono);
+}
+.kpi-delta .arrow { font-size: 10px; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red); }
+.delta-neutral { color: var(--text-muted); }
+.delta-context {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 2px;
+  font-family: var(--font);
+}
+
+/* ── TWO COL LAYOUT ── */
+.two-col { display: grid; grid-template-columns: 1fr 340px; gap: 12px; margin-bottom: 16px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+.card-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── NARRATIVE CARD ── */
+.narrative-card {
+  background: linear-gradient(135deg, var(--navy-card) 0%, rgba(17,34,64,0.6) 100%);
+  border: 1px solid var(--orange-glow);
+  border-radius: var(--radius);
+  padding: 18px;
+  position: relative;
+}
+.narrative-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--orange);
+  border-radius: 2px 0 0 2px;
+}
+.narrative-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--orange);
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+.narrative-bullet {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+.narrative-bullet:last-child { margin-bottom: 0; }
+.bullet-num {
+  width: 18px; height: 18px;
+  background: var(--orange-dim);
+  border: 1px solid var(--orange-glow);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--orange);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.bullet-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.bullet-text strong { color: var(--orange); font-weight: 600; }
+.bullet-text .hl-red { color: var(--red); font-weight: 600; }
+.bullet-text .hl-green { color: var(--green); font-weight: 600; }
+
+/* ── CHART CONTAINER ── */
+.chart-wrap { position: relative; }
+
+/* ── TABS ── */
+.tabs-row {
+  display: flex;
+  gap: 2px;
+  background: var(--navy);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 14px;
+}
+.tab-btn {
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.tab-btn.active { background: var(--navy-card); color: var(--text-primary); }
+
+/* ── RANKING TABLE ── */
+.ranking-table { width: 100%; border-collapse: collapse; }
+.ranking-table th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0 8px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--navy-border);
+}
+.ranking-table th.right { text-align: right; }
+.ranking-table td {
+  padding: 8px 8px;
+  font-size: 12.5px;
+  border-bottom: 1px solid rgba(30,58,95,0.5);
+  vertical-align: middle;
+}
+.ranking-table tr:last-child td { border-bottom: none; }
+.ranking-table tr:hover td { background: var(--navy-hover); }
+.rank-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  width: 24px;
+}
+.cre-name { font-weight: 500; color: var(--text-primary); }
+.val-mono {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: right;
+}
+.badge-deterioracao {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--red-dim);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: var(--red);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-atencao {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(234,179,8,0.25);
+  color: var(--yellow);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.badge-ok {
+  background: var(--green-dim);
+  border: 1px solid rgba(34,197,94,0.2);
+  color: var(--green);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.bar-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--navy-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar-fill { height: 100%; border-radius: 2px; }
+
+/* ── ATYPICAL MARKERS ── */
+.atypical-legend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.legend-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+/* ── SCOREBOARD ── */
+.scoreboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.score-item {
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.score-cre { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.score-vals {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+.score-exec { color: var(--text-primary); font-weight: 600; }
+.score-sep { color: var(--text-muted); }
+.score-contr { color: var(--text-muted); }
+.score-status {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+.status-controlada { background: var(--green); }
+.status-atencao { background: var(--yellow); }
+.status-critica { background: var(--red); }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--navy-border);
+}
+
+/* ── ANALÍTICA PAGE ── */
+.heatmap-grid {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  overflow-x: auto;
+}
+.heatmap-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.heatmap-label {
+  width: 140px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 4px 8px 4px 0;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.heatmap-label.header { font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; }
+.heatmap-cell {
+  width: 46px; height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  border-radius: 3px;
+  margin: 1px;
+}
+.heatmap-cell:hover { opacity: 0.8; }
+.heat-header {
+  width: 46px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 4px 0;
+  margin: 1px;
+}
+.heat-verde { background: rgba(34,197,94,0.25); color: var(--green); }
+.heat-amarelo { background: rgba(234,179,8,0.25); color: var(--yellow); }
+.heat-vermelho { background: rgba(239,68,68,0.25); color: var(--red); }
+.heat-vazio { background: var(--navy); color: var(--text-muted); }
+
+/* threshold controls */
+.threshold-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.threshold-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.threshold-input {
+  width: 60px;
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 3px 6px;
+  text-align: right;
+  outline: none;
+}
+.threshold-input:focus { border-color: var(--orange); }
+.threshold-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+
+/* deep dive */
+.deepdive-cre-select {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.cre-chip {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.cre-chip:hover { border-color: var(--orange-glow); color: var(--text-primary); }
+.cre-chip.active { background: var(--orange-dim); border-color: var(--orange); color: var(--orange); }
+
+/* table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--navy-border);
+  cursor: pointer;
+  user-select: none;
+}
+.data-table th:hover { color: var(--text-secondary); }
+.data-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(30,58,95,0.4);
+  color: var(--text-primary);
+  font-family: var(--mono);
+}
+.data-table tr:hover td { background: var(--navy-hover); }
+.data-table td.text { font-family: var(--font); }
+
+/* ── UTILITIES ── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.text-orange { color: var(--orange); }
+.text-red { color: var(--red); }
+.text-green { color: var(--green); }
+.text-muted { color: var(--text-muted); }
+.text-right { text-align: right; }
+.mono { font-family: var(--mono); }
+.fw-700 { font-weight: 700; }
+.fs-12 { font-size: 12px; }
+.fs-11 { font-size: 11px; }
+
+/* ── ATYPICAL ANNOTATION ── */
+.atypical-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.marker-recesso { background: rgba(139,163,192,0.15); color: var(--text-secondary); }
+.marker-carnaval { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.marker-julho { background: rgba(34,197,94,0.12); color: var(--green); }
+
+/* ── SCROLL ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--navy-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* responsive tight */
+@media (max-width: 1400px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .scoreboard-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1100px) {
+  .two-col { grid-template-columns: 1fr; }
+  .scoreboard-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* tooltip custom */
+.tooltip-custom {
+  position: absolute;
+  background: var(--navy-mid);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  pointer-events: none;
+  display: none;
+  z-index: 200;
+  min-width: 180px;
+}
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="logo-mark">CL</div>
-    <div>
-      <div class="logo-text">Painel SME · COMLURB</div>
-      <div class="logo-sub">Contrato de Limpeza Escolar</div>
-    </div>
-    <div style="width:1px;height:30px;background:var(--border);margin:0 8px;"></div>
-    <div class="page-tabs">
-      <button class="page-tab active" onclick="switchPage('executiva')">Executiva</button>
-      <button class="page-tab" onclick="switchPage('analitica')">Analítica</button>
-    </div>
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <span class="dot"></span>
+    COMLURB
+    <span style="color:var(--text-muted);font-weight:300">|</span>
+    <span style="font-weight:400;color:var(--text-secondary)">Painel SME</span>
   </div>
-  <div class="topbar-right">
+  <div class="header-divider"></div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('executiva',this)">Executiva</button>
+    <button class="nav-tab" onclick="showPage('analitica',this)">Analítica</button>
+  </nav>
+  <div class="header-right">
     <div class="theme-toggle">
-      <button class="theme-btn active" onclick="setTheme('frio', this)">Navy Frio</button>
-      <button class="theme-btn" onclick="setTheme('quente', this)">Navy Quente</button>
+      <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em">Navy Frio</span>
+      <div class="toggle-pill" id="themeToggle" onclick="toggleTheme()"></div>
+      <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em">Quente</span>
     </div>
-    <div class="topbar-date" id="topbar-date"></div>
+    <div class="header-divider"></div>
+    <div class="badge-contrato">~R$150M / ano</div>
+  </div>
+</header>
+
+<!-- FILTERS BAR -->
+<div class="filters-bar">
+  <div class="filter-group">
+    <span class="filter-label">Ano</span>
+    <select class="filter-select" id="filterAno" onchange="applyFilters()">
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Período</span>
+    <div class="period-mode-group">
+      <button class="period-btn active" id="btn-ytd" onclick="setPeriodo('ytd')">YTD</button>
+      <button class="period-btn" id="btn-mes" onclick="setPeriodo('mes')">Mês Isolado</button>
+    </div>
+  </div>
+  <div class="filter-group" id="filter-mes-ref" style="display:none">
+    <span class="filter-label">Mês Ref.</span>
+    <select class="filter-select" id="filterMes" onchange="applyFilters()">
+      <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+      <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+      <option value="10">Out</option><option value="11">Nov</option><option value="12" selected>Dez</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">CRE</span>
+    <select class="filter-select" id="filterCre" onchange="applyFilters()">
+      <option value="todas">Todas</option>
+    </select>
+  </div>
+  <!-- Visão metodológica toggle — Executiva only -->
+  <div id="vis-toggle-wrap" class="vis-toggle" title="Visão metodológica">
+    <span class="vis-option active" id="vis-exec" onclick="setVis('executiva')">Exec (÷30)</span>
+    <span style="color:var(--navy-border)">|</span>
+    <span class="vis-option" id="vis-tec" onclick="setVis('tecnica')">Técnica</span>
   </div>
 </div>
 
-<!-- FILTER BAR -->
-<div class="filterbar">
-  <span class="filter-label">Filtros</span>
-  <select class="filter-select" id="f-ano" onchange="updateDash()">
-    <option value="2025">2025</option>
-    <option value="2024">2024</option>
-  </select>
-  <select class="filter-select" id="f-periodo" onchange="toggleMesFilter()">
-    <option value="ytd">YTD</option>
-    <option value="mes">Mês isolado</option>
-  </select>
-  <select class="filter-select" id="f-mes" style="display:none" onchange="updateDash()">
-    <option value="1">Janeiro</option><option value="2">Fevereiro</option>
-    <option value="3">Março</option><option value="4">Abril</option>
-    <option value="5">Maio</option><option value="6">Junho</option>
-    <option value="7">Julho</option><option value="8">Agosto</option>
-    <option value="9">Setembro</option><option value="10">Outubro</option>
-    <option value="11">Novembro</option><option value="12">Dezembro</option>
-  </select>
-  <div class="filter-divider"></div>
-  <select class="filter-select" id="f-cre" onchange="updateDash()">
-    <option value="all">Todas as CREs</option>
-    <option value="1">CRE-01 · Campo Grande</option>
-    <option value="2">CRE-02 · Santa Cruz</option>
-    <option value="3">CRE-03 · Realengo</option>
-    <option value="4">CRE-04 · Bangu</option>
-    <option value="5">CRE-05 · Jacarepaguá</option>
-    <option value="6">CRE-06 · Barra</option>
-    <option value="7">CRE-07 · Ilha</option>
-    <option value="8">CRE-08 · Méier</option>
-    <option value="9">CRE-09 · Engenho Novo</option>
-    <option value="10">CRE-10 · Tijuca</option>
-    <option value="11">CRE-11 · Vila Isabel</option>
-    <option value="12">CRE-12 · Penha</option>
-    <option value="13">CRE-13 · Maré</option>
-    <option value="14">CRE-14 · Pavuna</option>
-    <option value="15">CRE-15 · Leopoldina</option>
-    <option value="16">CRE-16 · Centro</option>
-  </select>
-  <div class="methodology-toggle">
-    <button class="meth-btn active" onclick="setMeth('exec', this)" title="Média = Faltas ÷ (meses × 30)">Executivo ÷30</button>
-    <button class="meth-btn" onclick="setMeth('tec', this)" title="Média = Faltas ÷ dias reais">Técnico real</button>
-  </div>
-</div>
+<!-- ══════════════════════ PÁGINA EXECUTIVA ══════════════════════ -->
+<div id="page-executiva" class="page active">
+<div class="content">
 
-<!-- ═══════════════════════════════ PÁGINA EXECUTIVA ═══════════════════════════════ -->
-<div class="page active" id="page-executiva">
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpi-grid"></div>
 
-  <!-- KPI ROW -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Contratado</div>
-      <div class="kpi-value" id="kpi-contratado">R$ 0</div>
-      <div class="kpi-deltas" style="color:var(--text-muted);font-size:11px;">Referência do período</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Fat. Operacional</div>
-      <div class="kpi-value" id="kpi-fat">R$ 0</div>
-      <div class="kpi-deltas" id="delta-fat"></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Glosa</div>
-      <div class="kpi-value" id="kpi-glosa">R$ 0</div>
-      <div class="kpi-deltas" id="delta-glosa"></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">% Execução</div>
-      <div class="kpi-value" id="kpi-exec">0%</div>
-      <div class="kpi-deltas" id="delta-exec"></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Valor Dia (÷30)</div>
-      <div class="kpi-value" id="kpi-valdia">R$ 0</div>
-      <div class="kpi-deltas" id="delta-valdia"></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Média Faltas/dia</div>
-      <div class="kpi-value" id="kpi-faltas">0</div>
-      <div class="kpi-deltas" id="delta-faltas"></div>
-    </div>
-  </div>
-
-  <!-- MAIN GRID -->
-  <div class="main-grid">
-
-    <!-- GRÁFICO PRINCIPAL -->
+  <!-- Main chart + Narrative -->
+  <div class="two-col mb-16">
     <div class="card">
-      <div class="card-title">
-        <div class="card-title-dot"></div>
-        Desempenho do Período
-        <div class="trend-tabs" style="margin-left:auto;margin-bottom:0">
-          <button class="trend-tab active" onclick="setTrend('fat', this)">Faturamento</button>
-          <button class="trend-tab" onclick="setTrend('glosa', this)">Glosa</button>
-          <button class="trend-tab" onclick="setTrend('faltas', this)">Faltas/dia</button>
+      <div class="card-header">
+        <span class="card-title">Contratado × Fat. Operacional × Glosa</span>
+        <div class="atypical-legend" id="atypical-legend">
+          <span><span class="legend-dot" style="background:var(--text-secondary)"></span>Recesso</span>
+          <span><span class="legend-dot" style="background:var(--yellow)"></span>Carnaval</span>
+          <span><span class="legend-dot" style="background:var(--green)"></span>Julho</span>
         </div>
       </div>
-      <div class="chart-wrap">
-        <canvas id="mainChart"></canvas>
-      </div>
-      <div class="atypical-legend">
-        <span style="font-size:11px;color:var(--text-muted);font-weight:600;">Meses atípicos:</span>
-        <div class="legend-item"><div class="legend-dot" style="background:#6366F1"></div>Recesso</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#EC4899"></div>Carnaval</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#8B5CF6"></div>Julho</div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="chartMain"></canvas>
       </div>
     </div>
-
-    <!-- CARD NARRATIVO -->
-    <div class="card">
-      <div class="card-title">
-        <div class="card-title-dot"></div>
-        Situação do Contrato
-      </div>
-      <div class="narrative-bullets" id="narrative-bullets">
-        <!-- preenchido por JS -->
-      </div>
-    </div>
-
-  </div>
-
-  <!-- BOTTOM GRID -->
-  <div class="bottom-grid">
-
-    <!-- RANKING POR GLOSA -->
-    <div class="card">
-      <div class="card-title">
-        <div class="card-title-dot"></div>
-        Top CREs · Glosa
-      </div>
-      <div class="ranking-list" id="ranking-glosa"></div>
-    </div>
-
-    <!-- RANKING POR FALTAS/DIA -->
-    <div class="card">
-      <div class="card-title">
-        <div class="card-title-dot"></div>
-        Top CREs · Média Faltas/dia
-      </div>
-      <div class="ranking-list" id="ranking-faltas"></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ═══════════════════════════════ PÁGINA ANALÍTICA ═══════════════════════════════ -->
-<div class="page" id="page-analitica">
-
-  <!-- KPIs ANALÍTICA -->
-  <div class="kpi-mini-grid">
-    <div class="kpi-mini">
-      <div class="kpi-mini-label">% Unidades sem registro de faltas</div>
-      <div class="kpi-mini-val" style="color:var(--green)" id="an-presenca">—</div>
-    </div>
-    <div class="kpi-mini">
-      <div class="kpi-mini-label">Concentração Top-3 CREs na Glosa</div>
-      <div class="kpi-mini-val" style="color:var(--orange)" id="an-concentracao">—</div>
-    </div>
-    <div class="kpi-mini">
-      <div class="kpi-mini-label">CREs em situação crítica</div>
-      <div class="kpi-mini-val" style="color:var(--red)" id="an-criticas">—</div>
+    <div class="narrative-card">
+      <div class="narrative-title">▸ Análise Executiva</div>
+      <div id="narrative-bullets"></div>
     </div>
   </div>
 
-  <div class="analytic-grid">
-
-    <!-- HEATMAP -->
-    <div class="card" style="grid-column: 1 / -1">
-      <div class="card-title" style="justify-content:space-between">
-        <span style="display:flex;align-items:center;gap:8px">
-          <div class="card-title-dot"></div>
-          Heatmap · Faltas/dia por CRE × Mês
-        </span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;color:var(--text-muted)">Threshold (faltas/dia):</span>
-          <input type="number" id="threshold-verde" value="3" min="0" max="20" step="0.5"
-            style="width:52px;background:var(--bg-base);border:1px solid var(--border);color:var(--text-primary);padding:4px 8px;border-radius:6px;font-size:12px;font-family:'DM Mono',monospace;text-align:center"
-            onchange="buildHeatmap()" title="Limite verde/amarelo">
-          <span style="font-size:11px;color:var(--text-muted)">/</span>
-          <input type="number" id="threshold-amarelo" value="6" min="0" max="30" step="0.5"
-            style="width:52px;background:var(--bg-base);border:1px solid var(--border);color:var(--text-primary);padding:4px 8px;border-radius:6px;font-size:12px;font-family:'DM Mono',monospace;text-align:center"
-            onchange="buildHeatmap()" title="Limite amarelo/vermelho">
+  <!-- Tendência + Ranking -->
+  <div class="two-col mb-16">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Tendência Mensal</span>
+        <div class="tabs-row" id="trend-tabs">
+          <button class="tab-btn active" onclick="setTrendTab('glosa',this)">Glosa R$</button>
+          <button class="tab-btn" onclick="setTrendTab('faltas',this)">Faltas/dia</button>
+          <button class="tab-btn" onclick="setTrendTab('execucao',this)">% Execução</button>
         </div>
       </div>
-      <div class="heatmap-wrap">
-        <table class="heatmap-table" id="heatmap-table"></table>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="chartTrend"></canvas>
       </div>
     </div>
-
-    <!-- GRÁFICO ANALÍTICO EMPILHADO -->
     <div class="card">
-      <div class="card-title"><div class="card-title-dot"></div>Faturado + Glosa × Contratado</div>
-      <div class="chart-wrap" style="height:240px">
-        <canvas id="stackedChart"></canvas>
+      <div class="card-header">
+        <span class="card-title">Top CREs por Glosa</span>
+        <span class="card-meta">Acumulado</span>
       </div>
+      <table class="ranking-table" id="ranking-glosa"></table>
     </div>
-
-    <!-- RANKING COMPLETO -->
-    <div class="card">
-      <div class="card-title"><div class="card-title-dot"></div>Ranking Completo de CREs</div>
-      <div style="overflow-y:auto;max-height:260px">
-        <table class="detail-table" id="ranking-table"></table>
-      </div>
-    </div>
-
   </div>
 
-  <!-- SCOREBOARD -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title"><div class="card-title-dot"></div>Scoreboard · Contratado × Executado por CRE</div>
-    <div class="scoreboard-grid" id="scoreboard"></div>
+  <!-- Scoreboard -->
+  <div class="section-title">Scoreboard Contratado × Executado por CRE</div>
+  <div class="scoreboard-grid" id="scoreboard"></div>
+
+</div>
+</div><!-- /executiva -->
+
+<!-- ══════════════════════ PÁGINA ANALÍTICA ══════════════════════ -->
+<div id="page-analitica" class="page">
+<div class="content">
+
+  <!-- Filtro de visão explícito -->
+  <div class="filters-bar" style="background:transparent;border:none;padding:0 0 12px 0">
+    <div class="filter-group">
+      <span class="filter-label">Visão Metodológica</span>
+      <div class="period-mode-group">
+        <button class="period-btn active" id="avis-exec" onclick="setAVis('executiva')">Executiva (÷30)</button>
+        <button class="period-btn" id="avis-tec" onclick="setAVis('tecnica')">Técnica</button>
+      </div>
+    </div>
+    <div class="filter-group" style="margin-left:auto">
+      <span class="filter-label">% Unid. sem faltas</span>
+      <span class="mono text-orange fw-700" style="font-size:15px" id="pct-sem-faltas">—</span>
+    </div>
   </div>
 
-  <!-- TABELA DETALHADA -->
-  <div class="card">
-    <div class="card-title"><div class="card-title-dot"></div>Tabela Detalhada</div>
+  <!-- Heatmap -->
+  <div class="card mb-16">
+    <div class="card-header">
+      <span class="card-title">Heatmap CRE × Mês — Glosa %</span>
+      <div class="threshold-row" style="margin-bottom:0">
+        <div class="threshold-item">
+          <span class="threshold-dot" style="background:var(--green);"></span>
+          Verde &lt; <input class="threshold-input" id="thr-verde" value="2" onchange="renderHeatmap()"> %
+        </div>
+        <div class="threshold-item">
+          <span class="threshold-dot" style="background:var(--yellow);"></span>
+          Amarelo &lt; <input class="threshold-input" id="thr-amarelo" value="5" onchange="renderHeatmap()"> %
+        </div>
+        <div class="threshold-item">
+          <span class="threshold-dot" style="background:var(--red);"></span>
+          Vermelho ≥ threshold amarelo
+        </div>
+      </div>
+    </div>
+    <div id="heatmap-container" style="overflow-x:auto"></div>
+  </div>
+
+  <!-- Gráfico analítico + Ranking completo -->
+  <div class="two-col mb-16">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Faturado + Glosa empilhados</span>
+      </div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chartAnalitico"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Ranking Completo CREs</span>
+      </div>
+      <table class="ranking-table" id="ranking-completo"></table>
+    </div>
+  </div>
+
+  <!-- Deep dive -->
+  <div class="card mb-16">
+    <div class="card-header">
+      <span class="card-title">Deep Dive por CRE</span>
+    </div>
+    <div class="deepdive-cre-select" id="deepdive-chips"></div>
+    <div class="three-col" id="deepdive-content"></div>
+  </div>
+
+  <!-- Tabela detalhada -->
+  <div class="card mb-16">
+    <div class="card-header">
+      <span class="card-title">Tabela Detalhada</span>
+      <span class="card-meta" id="table-subtitle"></span>
+    </div>
     <div style="overflow-x:auto">
-      <table class="detail-table" id="detail-table"></table>
+      <table class="data-table" id="tabela-detalhada"></table>
+    </div>
+  </div>
+
+  <!-- Comparativo anual -->
+  <div class="card mb-16">
+    <div class="card-header">
+      <span class="card-title">Comparativo Anual</span>
+    </div>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="chartComparativo"></canvas>
     </div>
   </div>
 
 </div>
+</div><!-- /analitica -->
 
 <script>
-// ════════════════════════════════════════════════════════
-// DADOS MOCK — estruturados como viriam do CSV
-// ════════════════════════════════════════════════════════
-const MESES_LABELS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const MESES_ATIPICOS = {1: 'recesso', 2: 'carnaval', 7: 'julho'};
-
-const CRES = [
-  'CRE-01','CRE-02','CRE-03','CRE-04','CRE-05','CRE-06',
-  'CRE-07','CRE-08','CRE-09','CRE-10','CRE-11','CRE-12',
-  'CRE-13','CRE-14','CRE-15','CRE-16'
+// ══════════════════════════════════════════════════
+//  MOCK DATA — estruturado como viria do CSV
+// ══════════════════════════════════════════════════
+const CREs = [
+  "1ª CRE - Centro/Portuária","2ª CRE - Botafogo/Lagoa","3ª CRE - Méier","4ª CRE - Santa Cruz",
+  "5ª CRE - Bangu","6ª CRE - Anchieta/Pavuna","7ª CRE - São Gonçalo(adj)","8ª CRE - Campo Grande",
+  "9ª CRE - Realengo","10ª CRE - Ramos","11ª CRE - Penha","12ª CRE - Jacarepaguá",
+  "13ª CRE - Copacabana","14ª CRE - Ilha do Governador","15ª CRE - Madureira","16ª CRE - Irajá"
 ];
-
-// Postos por CRE (soma = 1854)
-const POSTOS_CRE = [148,122,115,108,131,89,45,142,98,112,95,118,127,103,88,113];
-
-// Fat.Operacional mensal por CRE (mock realista ~R$12.5M/mês total)
-// [CRE][Mês 1..12]
-const FAT_MENSAL = [
-  [1280000,1150000,1290000,1275000,1285000,1270000,1100000,1280000,1275000,1290000,1280000,1285000],
-  [1055000, 940000,1060000,1050000,1058000,1045000, 900000,1055000,1050000,1062000,1055000,1060000],
-  [ 995000, 890000,1000000, 990000, 998000, 985000, 850000, 995000, 992000,1002000, 995000,1000000],
-  [ 934000, 835000, 940000, 930000, 937000, 924000, 800000, 934000, 930000, 941000, 934000, 940000],
-  [1134000,1015000,1138000,1125000,1133000,1119000, 965000,1132000,1128000,1140000,1134000,1138000],
-  [ 771000, 690000, 775000, 767000, 772000, 763000, 658000, 770000, 766000, 776000, 771000, 775000],
-  [ 390000, 349000, 391000, 387000, 390000, 386000, 333000, 389000, 387000, 392000, 390000, 391000],
-  [1228000,1100000,1233000,1220000,1228000,1215000,1048000,1227000,1222000,1234000,1228000,1233000],
-  [ 848000, 759000, 852000, 844000, 849000, 840000, 725000, 847000, 843000, 853000, 848000, 852000],
-  [ 968000, 867000, 973000, 964000, 969000, 959000, 827000, 968000, 963000, 974000, 968000, 973000],
-  [ 821000, 735000, 825000, 817000, 822000, 813000, 701000, 821000, 817000, 826000, 821000, 825000],
-  [1021000, 913000,1026000,1016000,1022000,1011000, 872000,1020000,1016000,1027000,1021000,1026000],
-  [1099000, 984000,1104000,1094000,1100000,1089000, 939000,1098000,1094000,1105000,1099000,1104000],
-  [ 891000, 797000, 895000, 887000, 892000, 882000, 760000, 890000, 887000, 896000, 891000, 895000],
-  [ 761000, 681000, 765000, 758000, 762000, 753000, 649000, 760000, 756000, 766000, 761000, 765000],
-  [ 977000, 875000, 982000, 973000, 978000, 968000, 834000, 976000, 972000, 983000, 977000, 982000]
+const CRE_SHORT = [
+  "1ª CRE","2ª CRE","3ª CRE","4ª CRE","5ª CRE","6ª CRE","7ª CRE","8ª CRE",
+  "9ª CRE","10ª CRE","11ª CRE","12ª CRE","13ª CRE","14ª CRE","15ª CRE","16ª CRE"
 ];
+const MONTHS = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const DAYS_REAL = [31,28,31,30,31,30,31,31,30,31,30,31];
+// Postos por CRE (total ≈ 1854)
+const POSTOS_CRE = [88,95,118,140,132,125,110,135,128,112,116,108,82,90,125,150];
+// Valor por posto/mês (médio ~R$6.750)
+const VALOR_POSTO = 6750;
 
-// Valor contratado mensal por CRE (ligeiramente acima do faturado)
-const CONTRAT_CRE_MES = FAT_MENSAL.map(cre => cre.map(v => Math.round(v * 1.032)));
-
-// Faltas reais por CRE por mês
-const FALTAS_MENSAL = [
-  [42,55,38,40,41,43,65,39,41,37,42,40],
-  [35,46,32,34,33,36,54,33,34,31,35,33],
-  [48,62,44,46,47,49,71,45,46,43,47,45],
-  [29,38,26,27,28,30,44,27,28,25,29,27],
-  [38,50,35,36,37,39,57,35,36,33,38,36],
-  [22,29,20,21,21,23,33,20,21,19,22,20],
-  [12,16,11,11,12,12,18,11,11,10,12,11],
-  [55,72,51,53,54,57,83,52,53,49,55,52],
-  [31,40,28,29,30,31,46,28,29,27,31,29],
-  [44,57,40,42,43,45,66,41,42,38,44,41],
-  [28,36,25,26,27,28,41,25,26,24,28,26],
-  [63,82,58,60,61,64,94,59,61,56,63,59],
-  [71,93,65,68,69,73,106,67,68,63,71,67],
-  [39,51,36,37,38,40,58,36,37,34,39,36],
-  [25,33,23,24,24,25,37,22,23,21,25,23],
-  [41,53,37,39,40,42,61,38,39,36,41,38]
-];
-
-// Valor_Posto por CRE (÷30 = valor_dia)
-const VALOR_POSTO = CONTRAT_CRE_MES.map((cre, i) => Math.round(cre[0] / POSTOS_CRE[i]));
-
-// Badge deterioração (mock: CREs com piora 2+ meses consecutivos)
-const BADGE_DETERI = [false, false, true, false, false, false, false, true, false, false, false, true, true, false, false, false];
-
-// Dados período anterior (para delta)
-const FAT_ANT = FAT_MENSAL.map(cre => cre.map(v => Math.round(v * (0.96 + Math.random()*0.06))));
-const FALTAS_ANT = FALTAS_MENSAL.map(cre => cre.map(v => Math.round(v * (0.95 + Math.random()*0.1))));
-
-// ════════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════════
-let currentMeth = 'exec';
-let mainChartInst = null;
-let stackedChartInst = null;
-let currentTrend = 'fat';
-
-// ════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════
-function fmtBRL(v) {
-  if (v >= 1e6) return 'R$ ' + (v/1e6).toFixed(2).replace('.',',') + 'M';
-  if (v >= 1e3) return 'R$ ' + (v/1e3).toFixed(0) + 'k';
-  return 'R$ ' + v.toFixed(0);
+// Generate realistic monthly data per CRE
+function genData() {
+  const rows = [];
+  const seed = (x) => {
+    let s = Math.sin(x) * 43758.5453123;
+    return s - Math.floor(s);
+  };
+  let si = 0;
+  for (let c = 0; c < 16; c++) {
+    for (let m = 0; m < 12; m++) {
+      const postos = POSTOS_CRE[c];
+      const valorContratado = postos * VALOR_POSTO;
+      // base falta rate: worse for CREs 4,5,6,8,9 (higher index)
+      let faltaBase = 0.015 + seed(si++) * 0.025;
+      if ([3,4,5,7,8].includes(c)) faltaBase += 0.02;
+      if (m === 0) faltaBase += 0.01; // jan recesso
+      if (m === 1) faltaBase += 0.015; // carnaval
+      if (m === 6) faltaBase -= 0.005; // julho férias - menos faltas
+      const faltas = Math.round(postos * 30 * faltaBase);
+      const valorDia30 = VALOR_POSTO / 30;
+      const glosa = faltas * valorDia30;
+      const retroativo = (seed(si++) < 0.3) ? Math.round(valorContratado * seed(si++) * 0.02) : 0;
+      const fatBruto = valorContratado - glosa + (seed(si++) < 0.15 ? Math.round(valorContratado * 0.005) : 0);
+      const fatOp = fatBruto - retroativo;
+      const glosaOp = valorContratado - fatOp;
+      rows.push({
+        cre: c, mes: m+1, postos,
+        valorContratado, valorDia30, faltas, glosa, retroativo,
+        fatBruto, fatOp, glosaOp
+      });
+      si++;
+    }
+  }
+  // 2024 data (slightly worse performance overall)
+  const rows2024 = [];
+  si = 500;
+  for (let c = 0; c < 16; c++) {
+    for (let m = 0; m < 12; m++) {
+      const postos = POSTOS_CRE[c];
+      const valorContratado = postos * VALOR_POSTO * 0.97;
+      let faltaBase = 0.018 + seed(si++) * 0.027;
+      if ([3,4,5,7,8].includes(c)) faltaBase += 0.022;
+      const faltas = Math.round(postos * 30 * faltaBase);
+      const valorDia30 = (VALOR_POSTO * 0.97) / 30;
+      const glosa = faltas * valorDia30;
+      const retroativo = (seed(si++) < 0.25) ? Math.round(valorContratado * seed(si++) * 0.015) : 0;
+      const fatBruto = valorContratado - glosa;
+      const fatOp = fatBruto - retroativo;
+      const glosaOp = valorContratado - fatOp;
+      rows2024.push({
+        cre: c, mes: m+1, postos,
+        valorContratado, valorDia30, faltas, glosa, retroativo,
+        fatBruto, fatOp, glosaOp
+      });
+      si++;
+    }
+  }
+  return { 2025: rows, 2024: rows2024 };
 }
-function fmtPct(v) { return (v*100).toFixed(1).replace('.',',') + '%'; }
-function fmtNum(v) { return v.toFixed(1).replace('.',','); }
+const ALL_DATA = genData();
 
-function getDias(mes) {
-  const d = [31,28,31,30,31,30,31,31,30,31,30,31];
-  return d[mes-1];
-}
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+let state = {
+  ano: 2025, periodo: 'ytd', mes: 12,
+  cre: 'todas', vis: 'executiva', avis: 'executiva',
+  trendTab: 'glosa', deepdiveCre: 0
+};
 
-function getFilters() {
-  const periodo = document.getElementById('f-periodo').value;
-  const mesRef = parseInt(document.getElementById('f-mes').value || 4);
-  const creFilter = document.getElementById('f-cre').value;
-
-  let meses = [];
-  if (periodo === 'ytd') {
-    for (let m = 1; m <= mesRef; m++) meses.push(m);
+// ══════════════════════════════════════════════════
+//  FILTER LOGIC
+// ══════════════════════════════════════════════════
+function getRows() {
+  const data = ALL_DATA[state.ano];
+  let rows = data;
+  if (state.cre !== 'todas') {
+    rows = rows.filter(r => r.cre === parseInt(state.cre));
+  }
+  if (state.periodo === 'mes') {
+    rows = rows.filter(r => r.mes === state.mes);
   } else {
-    meses = [mesRef];
+    rows = rows.filter(r => r.mes <= state.mes);
+  }
+  return rows;
+}
+function getRowsAllMes() {
+  const data = ALL_DATA[state.ano];
+  let rows = data;
+  if (state.cre !== 'todas') rows = rows.filter(r => r.cre === parseInt(state.cre));
+  return rows;
+}
+
+function sum(arr, key) { return arr.reduce((a,b) => a + (b[key]||0), 0); }
+function fmt(n, decimals=0) {
+  if (Math.abs(n) >= 1e6) return 'R$' + (n/1e6).toFixed(1) + 'M';
+  if (Math.abs(n) >= 1e3) return 'R$' + (n/1e3).toFixed(0) + 'K';
+  return 'R$' + n.toFixed(decimals);
+}
+function fmtPct(n) { return n.toFixed(2) + '%'; }
+function fmtDelta(v, invert=false) {
+  if (v === null || isNaN(v)) return '';
+  const good = invert ? v < 0 : v > 0;
+  const cls = good ? 'delta-up' : (v === 0 ? 'delta-neutral' : 'delta-down');
+  const arrow = v > 0 ? '▲' : (v < 0 ? '▼' : '—');
+  const pct = Math.abs(v * 100).toFixed(1) + '%';
+  return `<span class="kpi-delta ${cls}"><span class="arrow">${arrow}</span>${pct}</span>`;
+}
+
+function getMesAnterior() {
+  const m = state.mes; const a = state.ano;
+  if (state.periodo !== 'mes') return null;
+  if (m === 1) return { mes: 12, ano: a - 1 };
+  return { mes: m - 1, ano: a };
+}
+function getSamePeriodAnterior() {
+  return state.ano - 1;
+}
+
+function getAggForPeriod(ano, meses) {
+  const data = ALL_DATA[ano];
+  if (!data) return null;
+  let rows = data.filter(r => meses.includes(r.mes));
+  if (state.cre !== 'todas') rows = rows.filter(r => r.cre === parseInt(state.cre));
+  if (!rows.length) return null;
+  const mesesDistintos = [...new Set(rows.map(r => r.mes))].length;
+  const somaFaltas = sum(rows,'faltas');
+  const somaContratado = sum(rows,'valorContratado');
+  const somaFatOp = sum(rows,'fatOp');
+  const somaGlosaOp = sum(rows,'glosaOp');
+  const somaPosX30 = rows.reduce((a,b) => a + b.postos * 30, 0);
+  const somaDiasReais = rows.reduce((a,b) => a + b.postos * DAYS_REAL[b.mes-1], 0);
+  const mediaFaltasExec = somaFaltas / (mesesDistintos * 30);
+  const mediaFaltasTec = somaFaltas / somaDiasReais * rows.reduce((a,b) => a + b.postos,0) * 30 / rows.length; // approx
+  const valorDia30 = somaFatOp / somaPosX30;
+  const execPct = somaFatOp / somaContratado;
+  return { somaFaltas, somaContratado, somaFatOp, somaGlosaOp, mediaFaltasExec, mediaFaltasTec, valorDia30, execPct, mesesDistintos, somaDiasReais, somaPosX30 };
+}
+
+function getCurrentMeses() {
+  if (state.periodo === 'mes') return [state.mes];
+  return Array.from({length: state.mes}, (_,i) => i+1);
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER KPIs
+// ══════════════════════════════════════════════════
+function renderKPIs() {
+  const meses = getCurrentMeses();
+  const curr = getAggForPeriod(state.ano, meses);
+  if (!curr) return;
+
+  // deltas
+  let prevMes = null, prevAnno = null;
+  if (state.periodo === 'mes') {
+    const ma = getMesAnterior();
+    if (ma) prevMes = getAggForPeriod(ma.ano, [ma.mes]);
+  }
+  prevAnno = getAggForPeriod(state.ano - 1, meses);
+
+  const mediaFaltas = state.vis === 'executiva' ? curr.mediaFaltasExec : (curr.somaFaltas / curr.somaDiasReais);
+  const prevMesMedia = prevMes ? (state.vis === 'executiva' ? prevMes.mediaFaltasExec : prevMes.somaFaltas / prevMes.somaDiasReais) : null;
+  const prevAnnoMedia = prevAnno ? (state.vis === 'executiva' ? prevAnno.mediaFaltasExec : prevAnno.somaFaltas / prevAnno.somaDiasReais) : null;
+
+  const kpis = [
+    {
+      label: 'Contratado', val: fmt(curr.somaContratado), cls: '',
+      deltas: []
+    },
+    {
+      label: 'Fat. Operacional', val: fmt(curr.somaFatOp), cls: '',
+      deltas: [
+        prevMes ? { v: (curr.somaFatOp - prevMes.somaFatOp) / prevMes.somaFatOp, ctx: 'vs mês ant.', inv: false } : null,
+        prevAnno ? { v: (curr.somaFatOp - prevAnno.somaFatOp) / prevAnno.somaFatOp, ctx: 'vs ' + (state.ano-1), inv: false } : null,
+      ].filter(Boolean)
+    },
+    {
+      label: 'Glosa Operacional', val: fmt(curr.somaGlosaOp), cls: '',
+      deltas: [
+        prevMes ? { v: (curr.somaGlosaOp - prevMes.somaGlosaOp) / prevMes.somaGlosaOp, ctx: 'vs mês ant.', inv: true } : null,
+        prevAnno ? { v: (curr.somaGlosaOp - prevAnno.somaGlosaOp) / prevAnno.somaGlosaOp, ctx: 'vs ' + (state.ano-1), inv: true } : null,
+      ].filter(Boolean)
+    },
+    {
+      label: '% Execução', val: fmtPct(curr.execPct * 100), cls: curr.execPct < 0.95 ? 'orange' : '',
+      deltas: [
+        prevMes ? { v: (curr.execPct - prevMes.execPct), ctx: 'vs mês ant.', inv: false, isPct: true } : null,
+        prevAnno ? { v: (curr.execPct - prevAnno.execPct), ctx: 'vs ' + (state.ano-1), inv: false, isPct: true } : null,
+      ].filter(Boolean)
+    },
+    {
+      label: 'Valor Dia (÷30)', val: 'R$' + curr.valorDia30.toFixed(2), cls: '',
+      deltas: [
+        prevMes ? { v: (curr.valorDia30 - prevMes.valorDia30) / prevMes.valorDia30, ctx: 'vs mês ant.', inv: false } : null,
+        prevAnno ? { v: (curr.valorDia30 - prevAnno.valorDia30) / prevAnno.valorDia30, ctx: 'vs ' + (state.ano-1), inv: false } : null,
+      ].filter(Boolean)
+    },
+    {
+      label: 'Média Faltas/dia', val: mediaFaltas.toFixed(1), cls: '',
+      deltas: [
+        prevMesMedia !== null ? { v: (mediaFaltas - prevMesMedia) / prevMesMedia, ctx: 'vs mês ant.', inv: true } : null,
+        prevAnnoMedia !== null ? { v: (mediaFaltas - prevAnnoMedia) / prevAnnoMedia, ctx: 'vs ' + (state.ano-1), inv: true } : null,
+      ].filter(Boolean)
+    },
+  ];
+
+  const grid = document.getElementById('kpi-grid');
+  grid.innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.cls}">${k.val}</div>
+      <div class="kpi-deltas">
+        ${k.deltas.map(d => {
+          const val = d.isPct ? ((d.v) * 100).toFixed(2) + 'pp' : Math.abs(d.v * 100).toFixed(1) + '%';
+          const good = d.inv ? d.v < 0 : d.v > 0;
+          const cls = good ? 'delta-up' : (d.v === 0 ? 'delta-neutral' : 'delta-down');
+          const arrow = d.v > 0 ? '▲' : (d.v < 0 ? '▼' : '—');
+          return `<span class="kpi-delta ${cls}"><span class="arrow">${arrow}</span>${val} <span class="delta-context">${d.ctx}</span></span>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  NARRATIVE BULLETS
+// ══════════════════════════════════════════════════
+function renderNarrative() {
+  const meses = getCurrentMeses();
+  const rows = getRows();
+  // Concentração de risco — top 3 CREs por glosa
+  const glosaByCre = CRE_SHORT.map((name, i) => {
+    const creRows = rows.filter(r => r.cre === i);
+    return { name, g: sum(creRows, 'glosaOp'), cre: i };
+  }).sort((a,b) => b.g - a.g);
+  const totalGlosa = glosaByCre.reduce((a,b) => a+b.g, 0);
+  const top3 = glosaByCre.slice(0,3);
+  const top3pct = (top3.reduce((a,b) => a+b.g, 0) / totalGlosa * 100).toFixed(0);
+  const top3names = top3.map(x => x.name).join(', ');
+
+  // Comportamento da glosa (vs mês anterior se mês isolado, vs mesmo período ano anterior)
+  let glosaBeh = '';
+  if (state.periodo === 'mes') {
+    const ma = getMesAnterior();
+    if (ma) {
+      const prev = getAggForPeriod(ma.ano, [ma.mes]);
+      const curr = getAggForPeriod(state.ano, [state.mes]);
+      if (prev && curr) {
+        const delta = ((curr.somaGlosaOp - prev.somaGlosaOp) / prev.somaGlosaOp * 100);
+        glosaBeh = delta > 0
+          ? `A glosa <span class="hl-red">aumentou ${delta.toFixed(1)}%</span> em relação ao mês anterior.`
+          : `A glosa <span class="hl-green">recuou ${Math.abs(delta).toFixed(1)}%</span> em relação ao mês anterior.`;
+      }
+    }
+  } else {
+    const prev = getAggForPeriod(state.ano - 1, meses);
+    const curr = getAggForPeriod(state.ano, meses);
+    if (prev && curr) {
+      const delta = ((curr.somaGlosaOp - prev.somaGlosaOp) / prev.somaGlosaOp * 100);
+      glosaBeh = delta > 0
+        ? `Acumulado YTD: glosa <span class="hl-red">+${delta.toFixed(1)}%</span> vs mesmo período ${state.ano-1}.`
+        : `Acumulado YTD: glosa <span class="hl-green">${delta.toFixed(1)}%</span> vs mesmo período ${state.ano-1}.`;
+    }
   }
 
-  let cres = CRES.map((_, i) => i);
-  if (creFilter !== 'all') cres = [parseInt(creFilter) - 1];
-
-  return { meses, cres, periodo };
-}
-
-function calcKPIs(meses, cres) {
-  let contratado = 0, fat = 0, faltas = 0, postosMeses = 0;
-  let contratadoAnt = 0, fatAnt = 0, faltasAnt = 0;
-
-  cres.forEach(ci => {
-    meses.forEach(m => {
-      contratado += CONTRAT_CRE_MES[ci][m-1];
-      fat += FAT_MENSAL[ci][m-1];
-      faltas += FALTAS_MENSAL[ci][m-1];
-      postosMeses += POSTOS_CRE[ci] * 30;
-      contratadoAnt += CONTRAT_CRE_MES[ci][m-1] * 0.98;
-      fatAnt += FAT_ANT[ci][m-1];
-      faltasAnt += FALTAS_ANT[ci][m-1];
-    });
-  });
-
-  const glosa = contratado - fat;
-  const glosaAnt = contratadoAnt - fatAnt;
-  const execPct = fat / contratado;
-  const execPctAnt = fatAnt / contratadoAnt;
-  const valDia = fat / postosMeses;
-  const valDiaAnt = fatAnt / (postosMeses * 0.98);
-
-  let mediaFaltas;
-  if (currentMeth === 'exec') {
-    mediaFaltas = faltas / (meses.length * 30);
-  } else {
-    const diasReais = meses.reduce((a, m) => a + getDias(m), 0);
-    mediaFaltas = faltas / diasReais;
+  // Faltas/dia
+  const curr = getAggForPeriod(state.ano, meses);
+  const prevAnno = getAggForPeriod(state.ano - 1, meses);
+  let faltasBeh = '';
+  if (curr && prevAnno) {
+    const mFaltas = state.vis === 'executiva' ? curr.mediaFaltasExec : curr.somaFaltas / curr.somaDiasReais;
+    const mPrev = state.vis === 'executiva' ? prevAnno.mediaFaltasExec : prevAnno.somaFaltas / prevAnno.somaDiasReais;
+    const d = ((mFaltas - mPrev) / mPrev * 100);
+    faltasBeh = d > 0
+      ? `Média de faltas/dia: <strong>${mFaltas.toFixed(1)}</strong> — <span class="hl-red">alta de ${d.toFixed(1)}%</span> vs ${state.ano-1}.`
+      : `Média de faltas/dia: <strong>${mFaltas.toFixed(1)}</strong> — <span class="hl-green">queda de ${Math.abs(d).toFixed(1)}%</span> vs ${state.ano-1}.`;
   }
-  let mediaFaltasAnt;
-  if (currentMeth === 'exec') {
-    mediaFaltasAnt = faltasAnt / (meses.length * 30);
-  } else {
-    const diasReais = meses.reduce((a, m) => a + getDias(m), 0);
-    mediaFaltasAnt = faltasAnt / diasReais;
-  }
-
-  return { contratado, fat, glosa, execPct, valDia, mediaFaltas,
-           fatAnt, glosaAnt, execPctAnt, valDiaAnt, mediaFaltasAnt, faltas };
-}
-
-function deltaHtml(curr, prev, invertido = false) {
-  const d = ((curr - prev) / Math.abs(prev)) * 100;
-  const bom = invertido ? d < 0 : d > 0;
-  const cls = bom ? 'delta-up' : 'delta-down';
-  const arrow = d > 0 ? '▲' : '▼';
-  // invertido = quando subir é ruim (glosa, faltas)
-  const color = invertido ? (d > 0 ? 'var(--red)' : 'var(--green)') : (d > 0 ? 'var(--green)' : 'var(--red)');
-  return `<span style="color:${color};font-family:'DM Mono',monospace;font-size:11px">${arrow} ${Math.abs(d).toFixed(1)}%</span> <span class="delta-label">vs mês ant.</span>`;
-}
-
-// ════════════════════════════════════════════════════════
-// UPDATE DASHBOARD
-// ════════════════════════════════════════════════════════
-function updateDash() {
-  const { meses, cres } = getFilters();
-  const kpi = calcKPIs(meses, cres);
-
-  // KPIs
-  document.getElementById('kpi-contratado').innerHTML = fmtBRL(kpi.contratado);
-  document.getElementById('kpi-fat').innerHTML = fmtBRL(kpi.fat);
-  document.getElementById('kpi-glosa').innerHTML = `<span style="color:var(--red)">${fmtBRL(kpi.glosa)}</span>`;
-  document.getElementById('kpi-exec').innerHTML = `<span style="color:${kpi.execPct >= 0.97 ? 'var(--green)' : kpi.execPct >= 0.94 ? 'var(--yellow)' : 'var(--red)'}">${fmtPct(kpi.execPct)}</span>`;
-  document.getElementById('kpi-valdia').innerHTML = `R$ ${kpi.valDia.toFixed(2).replace('.',',')}`;
-  document.getElementById('kpi-faltas').innerHTML = fmtNum(kpi.mediaFaltas) + '<span>/dia</span>';
-
-  // Deltas
-  document.getElementById('delta-fat').innerHTML = deltaHtml(kpi.fat, kpi.fatAnt, false);
-  document.getElementById('delta-glosa').innerHTML = deltaHtml(kpi.glosa, kpi.glosaAnt, true);
-  document.getElementById('delta-exec').innerHTML = deltaHtml(kpi.execPct, kpi.execPctAnt, false);
-  document.getElementById('delta-valdia').innerHTML = deltaHtml(kpi.valDia, kpi.valDiaAnt, false);
-  document.getElementById('delta-faltas').innerHTML = deltaHtml(kpi.mediaFaltas, kpi.mediaFaltasAnt, true);
-
-  buildNarrative(kpi, meses, cres);
-  buildMainChart(meses, cres);
-  buildRankings(meses, cres);
-  buildAnalytica(meses, cres);
-}
-
-// ════════════════════════════════════════════════════════
-// NARRATIVE
-// ════════════════════════════════════════════════════════
-function buildNarrative(kpi, meses, cres) {
-  // Concentração de risco
-  const glosaPorCre = cres.map(ci => {
-    let g = 0;
-    meses.forEach(m => { g += (CONTRAT_CRE_MES[ci][m-1] - FAT_MENSAL[ci][m-1]); });
-    return { nome: CRES[ci], glosa: g };
-  }).sort((a,b) => b.glosa - a.glosa);
-
-  const top3 = glosaPorCre.slice(0,3);
-  const top3sum = top3.reduce((a,b) => a + b.glosa, 0);
-  const totalGlosa = glosaPorCre.reduce((a,b) => a + b.glosa, 0);
-  const concPct = totalGlosa > 0 ? (top3sum / totalGlosa * 100).toFixed(0) : 0;
-
-  const glosaOk = kpi.execPct >= 0.97;
-  const faltasOk = kpi.mediaFaltas <= 3;
-
-  const b1Type = parseFloat(concPct) >= 70 ? 'red' : parseFloat(concPct) >= 50 ? 'yellow' : 'green';
-  const b2Type = glosaOk ? 'green' : kpi.execPct >= 0.94 ? 'yellow' : 'red';
-  const b3Type = faltasOk ? 'green' : kpi.mediaFaltas <= 6 ? 'yellow' : 'red';
-
-  const b1Icon = b1Type === 'red' ? '⚠️' : b1Type === 'yellow' ? '🔶' : '✅';
-  const b2Icon = b2Type === 'green' ? '✅' : b2Type === 'yellow' ? '🔶' : '⚠️';
-  const b3Icon = b3Type === 'green' ? '✅' : b3Type === 'yellow' ? '🔶' : '⚠️';
-
-  const nomeTop3 = top3.map(c => c.nome).join(', ');
 
   document.getElementById('narrative-bullets').innerHTML = `
-    <div class="narrative-bullet ${b1Type}">
-      <div class="bullet-icon">${b1Icon}</div>
-      <div class="bullet-text"><strong>${nomeTop3}</strong> concentram <strong>${concPct}%</strong> da glosa do período.</div>
+    <div class="narrative-bullet">
+      <div class="bullet-num">1</div>
+      <div class="bullet-text"><strong>${top3pct}%</strong> da glosa total está concentrada em 3 CREs: <strong>${top3names}</strong>.</div>
     </div>
-    <div class="narrative-bullet ${b2Type}">
-      <div class="bullet-icon">${b2Icon}</div>
-      <div class="bullet-text">Execução do contrato em <strong>${fmtPct(kpi.execPct)}</strong>. Glosa acumulada: <strong>${fmtBRL(kpi.glosa)}</strong>.</div>
+    <div class="narrative-bullet">
+      <div class="bullet-num">2</div>
+      <div class="bullet-text">${glosaBeh || 'Sem comparação disponível para o período selecionado.'}</div>
     </div>
-    <div class="narrative-bullet ${b3Type}">
-      <div class="bullet-icon">${b3Icon}</div>
-      <div class="bullet-text">Média de faltas/dia: <strong>${fmtNum(kpi.mediaFaltas)}</strong> ${currentMeth === 'exec' ? '(metodologia ÷30)' : '(dias reais)'}.</div>
+    <div class="narrative-bullet">
+      <div class="bullet-num">3</div>
+      <div class="bullet-text">${faltasBeh || 'Sem comparação disponível para o período selecionado.'}</div>
     </div>
   `;
 }
 
-// ════════════════════════════════════════════════════════
-// MAIN CHART
-// ════════════════════════════════════════════════════════
-function buildMainChart(meses, cres) {
-  const labels = meses.map(m => {
-    const at = MESES_ATIPICOS[m];
-    return MESES_LABELS[m-1] + (at ? ' ◆' : '');
-  });
-
-  let contratData = [], fatData = [], glosaData = [], glosaRData = [];
-
-  if (currentTrend === 'fat' || currentTrend === 'glosa') {
-    meses.forEach(m => {
-      let c = 0, f = 0;
-      cres.forEach(ci => { c += CONTRAT_CRE_MES[ci][m-1]; f += FAT_MENSAL[ci][m-1]; });
-      contratData.push(c);
-      fatData.push(f);
-      glosaData.push(c - f);
-      glosaRData.push(((c-f)/c*100).toFixed(2));
-    });
-  } else {
-    meses.forEach(m => {
-      let faltas = 0;
-      cres.forEach(ci => { faltas += FALTAS_MENSAL[ci][m-1]; });
-      const divisor = currentMeth === 'exec' ? 30 : getDias(m);
-      fatData.push(parseFloat((faltas / divisor).toFixed(2)));
-    });
+// ══════════════════════════════════════════════════
+//  MAIN CHART
+// ══════════════════════════════════════════════════
+let chartMainInst = null;
+const ATYPICAL = { 0: 'recesso', 1: 'carnaval', 6: 'julho' };
+function renderChartMain() {
+  const ctx = document.getElementById('chartMain').getContext('2d');
+  const meses = getCurrentMeses();
+  const labels = meses.map(m => MONTHS[m-1]);
+  const contratado = [], fatOp = [], glosaOp = [], glosaPct = [];
+  for (const m of meses) {
+    const rows = ALL_DATA[state.ano].filter(r => r.mes === m && (state.cre === 'todas' || r.cre === parseInt(state.cre)));
+    const c = sum(rows,'valorContratado');
+    const f = sum(rows,'fatOp');
+    const g = sum(rows,'glosaOp');
+    contratado.push(c / 1e6);
+    fatOp.push(f / 1e6);
+    glosaOp.push(g / 1e6);
+    glosaPct.push(c > 0 ? (g / c * 100).toFixed(2) : 0);
   }
+  if (chartMainInst) chartMainInst.destroy();
 
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  if (mainChartInst) mainChartInst.destroy();
-
-  if (currentTrend === 'fat') {
-    mainChartInst = new Chart(ctx, {
-      data: {
-        labels,
-        datasets: [
-          {
-            type: 'bar', label: 'Contratado',
-            data: contratData,
-            backgroundColor: 'rgba(59,130,246,0.35)',
-            borderColor: 'rgba(59,130,246,0.8)',
-            borderWidth: 1, borderRadius: 4, yAxisID: 'y'
-          },
-          {
-            type: 'bar', label: 'Fat. Operacional',
-            data: fatData,
-            backgroundColor: 'rgba(249,115,22,0.5)',
-            borderColor: '#F97316',
-            borderWidth: 1, borderRadius: 4, yAxisID: 'y'
-          },
-          {
-            type: 'line', label: 'Glosa R$',
-            data: glosaData,
-            borderColor: '#F43F5E',
-            backgroundColor: 'rgba(244,63,94,0.1)',
-            borderWidth: 2, pointRadius: 4,
-            fill: false, tension: 0.3, yAxisID: 'y2'
-          }
-        ]
-      },
-      options: chartOptions('R$', 'R$ Glosa')
-    });
-  } else if (currentTrend === 'glosa') {
-    mainChartInst = new Chart(ctx, {
-      data: {
-        labels,
-        datasets: [{
-          type: 'bar', label: 'Glosa R$',
-          data: glosaData,
-          backgroundColor: 'rgba(244,63,94,0.4)',
-          borderColor: '#F43F5E',
-          borderWidth: 1, borderRadius: 4, yAxisID: 'y'
-        },{
-          type: 'line', label: 'Glosa %',
-          data: glosaRData,
-          borderColor: '#FACC15',
-          borderWidth: 2, pointRadius: 4,
-          fill: false, tension: 0.3, yAxisID: 'y2'
-        }]
-      },
-      options: chartOptions('R$', '%')
-    });
-  } else {
-    mainChartInst = new Chart(ctx, {
-      data: {
-        labels,
-        datasets: [{
-          type: 'line', label: 'Média Faltas/dia',
-          data: fatData,
-          borderColor: '#F97316',
-          backgroundColor: 'rgba(249,115,22,0.1)',
-          borderWidth: 2, pointRadius: 5,
-          fill: true, tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#7A8BAD', font: { family: 'DM Sans', size: 12 } } } },
-        scales: {
-          x: { ticks: { color: '#7A8BAD', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-          y: { ticks: { color: '#7A8BAD', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+  // Atypical background plugin
+  const atypPlugin = {
+    id: 'atypBg',
+    beforeDraw(chart) {
+      const { ctx, scales, chartArea } = chart;
+      if (!scales.x) return;
+      meses.forEach((m, i) => {
+        if (ATYPICAL[m-1] !== undefined) {
+          const x = scales.x.getPixelForValue(i);
+          const bw = scales.x.width / meses.length;
+          ctx.save();
+          ctx.fillStyle = ATYPICAL[m-1] === 'carnaval' ? 'rgba(234,179,8,0.06)' :
+                          ATYPICAL[m-1] === 'julho' ? 'rgba(34,197,94,0.06)' : 'rgba(139,163,192,0.06)';
+          ctx.fillRect(x - bw/2, chartArea.top, bw, chartArea.bottom - chartArea.top);
+          ctx.restore();
         }
-      }
-    });
-  }
-}
-
-function chartOptions(lY, lY2) {
-  return {
-    responsive: true, maintainAspectRatio: false,
-    plugins: {
-      legend: { labels: { color: '#7A8BAD', font: { family: 'DM Sans', size: 12 }, boxWidth: 12 } },
-      tooltip: {
-        callbacks: {
-          label: function(ctx) {
-            if (ctx.dataset.yAxisID === 'y2' && lY2 === '%') return ctx.dataset.label + ': ' + ctx.raw + '%';
-            return ctx.dataset.label + ': ' + fmtBRL(ctx.raw);
-          }
-        }
-      }
-    },
-    scales: {
-      x: { ticks: { color: '#7A8BAD', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-      y: {
-        position: 'left',
-        ticks: { color: '#7A8BAD', font: { size: 11 }, callback: v => fmtBRL(v) },
-        grid: { color: 'rgba(255,255,255,0.04)' }
-      },
-      y2: {
-        position: 'right',
-        ticks: {
-          color: '#F43F5E', font: { size: 11 },
-          callback: v => lY2 === '%' ? v + '%' : fmtBRL(v)
-        },
-        grid: { drawOnChartArea: false }
-      }
+      });
     }
   };
-}
 
-// ════════════════════════════════════════════════════════
-// RANKINGS
-// ════════════════════════════════════════════════════════
-function buildRankings(meses, cres) {
-  const data = cres.map(ci => {
-    let glosa = 0, faltas = 0;
-    meses.forEach(m => {
-      glosa += (CONTRAT_CRE_MES[ci][m-1] - FAT_MENSAL[ci][m-1]);
-      faltas += FALTAS_MENSAL[ci][m-1];
-    });
-    const mediaFaltas = currentMeth === 'exec'
-      ? faltas / (meses.length * 30)
-      : faltas / meses.reduce((a, m) => a + getDias(m), 0);
-    return { i: ci, nome: CRES[ci], glosa, mediaFaltas };
-  });
-
-  const byGlosa = [...data].sort((a,b) => b.glosa - a.glosa).slice(0,6);
-  const byFaltas = [...data].sort((a,b) => b.mediaFaltas - a.mediaFaltas).slice(0,6);
-  const maxGlosa = byGlosa[0]?.glosa || 1;
-  const maxFaltas = byFaltas[0]?.mediaFaltas || 1;
-
-  const posCls = ['top1','top2','top3','','',''];
-
-  document.getElementById('ranking-glosa').innerHTML = byGlosa.map((d, idx) => `
-    <div class="ranking-item">
-      <div class="rank-pos ${posCls[idx]}">${idx+1}</div>
-      <div class="rank-info">
-        <div class="rank-name">${d.nome} ${BADGE_DETERI[d.i] ? '<span class="badge-deterioration">↑ Deterioração</span>' : ''}</div>
-        <div class="rank-sub">${fmtBRL(d.glosa)}</div>
-      </div>
-      <div class="rank-bar-wrap">
-        <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${(d.glosa/maxGlosa*100).toFixed(0)}%"></div></div>
-        <div class="rank-val">${fmtPct(d.glosa / (d.glosa + byGlosa.reduce((a,x)=>a+x.glosa,0) - d.glosa + 0.01))}</div>
-      </div>
-    </div>
-  `).join('');
-
-  document.getElementById('ranking-faltas').innerHTML = byFaltas.map((d, idx) => `
-    <div class="ranking-item">
-      <div class="rank-pos ${posCls[idx]}">${idx+1}</div>
-      <div class="rank-info">
-        <div class="rank-name">${d.nome} ${BADGE_DETERI[d.i] ? '<span class="badge-deterioration">↑ Deterioração</span>' : ''}</div>
-        <div class="rank-sub">${fmtNum(d.mediaFaltas)} faltas/dia</div>
-      </div>
-      <div class="rank-bar-wrap">
-        <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${(d.mediaFaltas/maxFaltas*100).toFixed(0)}%"></div></div>
-        <div class="rank-val">${fmtNum(d.mediaFaltas)}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ════════════════════════════════════════════════════════
-// HEATMAP
-// ════════════════════════════════════════════════════════
-function buildHeatmap() {
-  const thV = parseFloat(document.getElementById('threshold-verde').value) || 3;
-  const thA = parseFloat(document.getElementById('threshold-amarelo').value) || 6;
-  const { meses, cres } = getFilters();
-
-  const thead = `<thead><tr><th class="hm-label">CRE</th>${meses.map(m => `<th>${MESES_LABELS[m-1]}${MESES_ATIPICOS[m]?'◆':''}</th>`).join('')}</tr></thead>`;
-
-  const tbody = '<tbody>' + cres.map(ci => {
-    const cells = meses.map(m => {
-      const divisor = currentMeth === 'exec' ? 30 : getDias(m);
-      const val = FALTAS_MENSAL[ci][m-1] / divisor;
-      const cls = val <= thV ? 'hm-green' : val <= thA ? 'hm-yellow' : 'hm-red';
-      return `<td class="${cls}" title="${CRES[ci]} · ${MESES_LABELS[m-1]}: ${val.toFixed(1)} f/dia">${val.toFixed(1)}</td>`;
-    }).join('');
-    return `<tr><td class="hm-label">${CRES[ci]}</td>${cells}</tr>`;
-  }).join('') + '</tbody>';
-
-  document.getElementById('heatmap-table').innerHTML = thead + tbody;
-}
-
-// ════════════════════════════════════════════════════════
-// ANALÍTICA
-// ════════════════════════════════════════════════════════
-function buildAnalytica(meses, cres) {
-  buildHeatmap();
-
-  // KPIs analítica
-  const thV = parseFloat(document.getElementById('threshold-verde')?.value) || 3;
-  let semFaltas = 0;
-  cres.forEach(ci => {
-    const totalFaltas = meses.reduce((a, m) => a + FALTAS_MENSAL[ci][m-1], 0);
-    if (totalFaltas === 0) semFaltas++;
-  });
-  document.getElementById('an-presenca').textContent = fmtPct(semFaltas / cres.length);
-
-  const glosasCre = cres.map(ci => {
-    return meses.reduce((a, m) => a + (CONTRAT_CRE_MES[ci][m-1] - FAT_MENSAL[ci][m-1]), 0);
-  }).sort((a,b) => b-a);
-  const totalGlosa = glosasCre.reduce((a,b)=>a+b,0);
-  const top3conc = glosasCre.slice(0,3).reduce((a,b)=>a+b,0);
-  document.getElementById('an-concentracao').textContent = totalGlosa > 0 ? fmtPct(top3conc/totalGlosa) : '—';
-
-  let criticas = 0;
-  cres.forEach(ci => {
-    const fat = meses.reduce((a,m)=>a+FAT_MENSAL[ci][m-1],0);
-    const cont = meses.reduce((a,m)=>a+CONTRAT_CRE_MES[ci][m-1],0);
-    if (fat/cont < 0.94) criticas++;
-  });
-  document.getElementById('an-criticas').textContent = criticas;
-
-  // Stacked chart
-  const stackLabels = meses.map(m => MESES_LABELS[m-1]);
-  const stackFat = [], stackGlosa = [], stackCont = [];
-  meses.forEach(m => {
-    let f=0, c=0;
-    cres.forEach(ci => { f += FAT_MENSAL[ci][m-1]; c += CONTRAT_CRE_MES[ci][m-1]; });
-    stackFat.push(f); stackGlosa.push(c-f); stackCont.push(c);
-  });
-
-  const ctx2 = document.getElementById('stackedChart').getContext('2d');
-  if (stackedChartInst) stackedChartInst.destroy();
-  stackedChartInst = new Chart(ctx2, {
+  chartMainInst = new Chart(ctx, {
+    type: 'bar',
+    plugins: [atypPlugin],
     data: {
-      labels: stackLabels,
+      labels,
       datasets: [
-        { type:'bar', label:'Fat. Operacional', data:stackFat, backgroundColor:'rgba(249,115,22,0.6)', borderColor:'#F97316', borderWidth:1, borderRadius:3, stack:'s' },
-        { type:'bar', label:'Glosa', data:stackGlosa, backgroundColor:'rgba(244,63,94,0.4)', borderColor:'#F43F5E', borderWidth:1, borderRadius:3, stack:'s' },
-        { type:'line', label:'Contratado', data:stackCont, borderColor:'rgba(59,130,246,0.8)', borderWidth:2, pointRadius:3, fill:false, tension:0.3 }
+        { label: 'Contratado', data: contratado, backgroundColor: 'rgba(139,163,192,0.3)', borderColor: 'rgba(139,163,192,0.8)', borderWidth: 1, borderRadius: 3 },
+        { label: 'Fat. Operacional', data: fatOp, backgroundColor: 'rgba(249,115,22,0.55)', borderColor: '#F97316', borderWidth: 1, borderRadius: 3 },
+        { label: 'Glosa R$', data: glosaOp, type: 'line', yAxisID: 'y2', borderColor: '#EF4444', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#EF4444', tension: 0.3, fill: false, _pct: glosaPct }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color:'#7A8BAD', font:{family:'DM Sans',size:11}, boxWidth:12 } } },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#8BA3C0', font: { size: 11, family: 'DM Sans' }, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: '#112240', borderColor: '#1E3A5F', borderWidth: 1,
+          titleColor: '#E8EDF5', bodyColor: '#8BA3C0',
+          callbacks: {
+            afterBody: (items) => {
+              const i = items[0].dataIndex;
+              const d = items.find(x => x.dataset.label === 'Glosa R$');
+              if (d) return [`Glosa %: ${glosaPct[i]}%`];
+              return [];
+            }
+          }
+        }
+      },
       scales: {
-        x: { ticks:{color:'#7A8BAD',font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'}, stacked:true },
-        y: { ticks:{color:'#7A8BAD',font:{size:10},callback:v=>fmtBRL(v)}, grid:{color:'rgba(255,255,255,0.04)'}, stacked:true }
+        x: { ticks: { color: '#8BA3C0', font: { size: 11 } }, grid: { color: 'rgba(30,58,95,0.5)' } },
+        y: { ticks: { color: '#8BA3C0', font: { size: 11 }, callback: v => 'R$' + v.toFixed(1) + 'M' }, grid: { color: 'rgba(30,58,95,0.5)' } },
+        y2: { position: 'right', ticks: { color: '#EF4444', font: { size: 10 }, callback: v => 'R$' + v.toFixed(1) + 'M' }, grid: { drawOnChartArea: false } }
       }
     }
   });
-
-  // Ranking table completo
-  const rankData = cres.map(ci => {
-    const fat = meses.reduce((a,m)=>a+FAT_MENSAL[ci][m-1],0);
-    const cont = meses.reduce((a,m)=>a+CONTRAT_CRE_MES[ci][m-1],0);
-    const glosa = cont - fat;
-    const faltas = meses.reduce((a,m)=>a+FALTAS_MENSAL[ci][m-1],0);
-    const mf = currentMeth === 'exec' ? faltas/(meses.length*30) : faltas/meses.reduce((a,m)=>a+getDias(m),0);
-    const exec = fat/cont;
-    const status = exec >= 0.97 ? 'green' : exec >= 0.94 ? 'yellow' : 'red';
-    const statusLabel = exec >= 0.97 ? 'Controlada' : exec >= 0.94 ? 'Atenção' : 'Crítica';
-    return { nome: CRES[ci], fat, glosa, exec, mf, status, statusLabel };
-  }).sort((a,b) => b.glosa - a.glosa);
-
-  document.getElementById('ranking-table').innerHTML = `
-    <thead><tr>
-      <th>CRE</th><th>Fat. Op.</th><th>Glosa</th><th>% Exec.</th><th>F/dia</th><th>Status</th>
-    </tr></thead>
-    <tbody>
-      ${rankData.map(d => `<tr>
-        <td style="font-weight:600">${d.nome}</td>
-        <td>${fmtBRL(d.fat)}</td>
-        <td style="color:var(--red)">${fmtBRL(d.glosa)}</td>
-        <td style="color:${d.exec>=0.97?'var(--green)':d.exec>=0.94?'var(--yellow)':'var(--red)'}">${fmtPct(d.exec)}</td>
-        <td>${fmtNum(d.mf)}</td>
-        <td><span class="status-badge status-${d.status}">${d.statusLabel}</span></td>
-      </tr>`).join('')}
-    </tbody>
-  `;
-
-  // Scoreboard
-  document.getElementById('scoreboard').innerHTML = cres.map(ci => {
-    const fat = meses.reduce((a,m)=>a+FAT_MENSAL[ci][m-1],0);
-    const cont = meses.reduce((a,m)=>a+CONTRAT_CRE_MES[ci][m-1],0);
-    const exec = fat/cont;
-    const cls = exec >= 0.97 ? 'score-ok' : exec >= 0.94 ? 'score-att' : 'score-crit';
-    const label = exec >= 0.97 ? 'Controlada' : exec >= 0.94 ? 'Atenção' : 'Crítica';
-    const color = exec >= 0.97 ? 'var(--green)' : exec >= 0.94 ? 'var(--yellow)' : 'var(--red)';
-    return `<div class="score-card">
-      <div class="score-cre">${CRES[ci]}</div>
-      <div class="score-exec" style="color:${color}">${fmtPct(exec)}</div>
-      <div class="score-label">execução</div>
-      <span class="score-status ${cls}">${label}</span>
-    </div>`;
-  }).join('');
-
-  // Tabela detalhada
-  document.getElementById('detail-table').innerHTML = `
-    <thead><tr>
-      <th>CRE</th><th>Contratado</th><th>Fat. Op.</th><th>Glosa R$</th><th>Glosa %</th><th>Média F/dia</th><th>Postos</th><th>Valor Dia</th><th>Status</th>
-    </tr></thead>
-    <tbody>
-      ${cres.map(ci => {
-        const fat = meses.reduce((a,m)=>a+FAT_MENSAL[ci][m-1],0);
-        const cont = meses.reduce((a,m)=>a+CONTRAT_CRE_MES[ci][m-1],0);
-        const glosa = cont-fat;
-        const exec = fat/cont;
-        const faltas = meses.reduce((a,m)=>a+FALTAS_MENSAL[ci][m-1],0);
-        const mf = currentMeth==='exec' ? faltas/(meses.length*30) : faltas/meses.reduce((a,m)=>a+getDias(m),0);
-        const status = exec>=0.97?'green':exec>=0.94?'yellow':'red';
-        const statusLabel = exec>=0.97?'Controlada':exec>=0.94?'Atenção':'Crítica';
-        const vd = fat/(POSTOS_CRE[ci]*meses.length*30);
-        return `<tr>
-          <td style="font-weight:700">${CRES[ci]}</td>
-          <td>${fmtBRL(cont)}</td>
-          <td>${fmtBRL(fat)}</td>
-          <td style="color:var(--red)">${fmtBRL(glosa)}</td>
-          <td style="color:${exec>=0.97?'var(--green)':exec>=0.94?'var(--yellow)':'var(--red)'}">${fmtPct(glosa/cont)}</td>
-          <td>${fmtNum(mf)}</td>
-          <td style="color:var(--text-secondary)">${POSTOS_CRE[ci]}</td>
-          <td style="font-family:'DM Mono',monospace;font-size:11px">R$ ${vd.toFixed(2).replace('.',',')}</td>
-          <td><span class="status-badge status-${status}">${statusLabel}</span></td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  `;
 }
 
-// ════════════════════════════════════════════════════════
-// UI CONTROLS
-// ════════════════════════════════════════════════════════
-function switchPage(page) {
+// ══════════════════════════════════════════════════
+//  TREND CHART
+// ══════════════════════════════════════════════════
+let chartTrendInst = null;
+function renderTrend() {
+  const ctx = document.getElementById('chartTrend').getContext('2d');
+  const mesesAll = Array.from({length:12},(_,i)=>i+1);
+  const labels = MONTHS;
+  const curr25 = [], curr24 = [];
+  for (const m of mesesAll) {
+    const rows25 = ALL_DATA[2025].filter(r => r.mes === m && (state.cre === 'todas' || r.cre === parseInt(state.cre)));
+    const rows24 = ALL_DATA[2024].filter(r => r.mes === m && (state.cre === 'todas' || r.cre === parseInt(state.cre)));
+    if (state.trendTab === 'glosa') {
+      curr25.push(sum(rows25,'glosaOp') / 1e6);
+      curr24.push(sum(rows24,'glosaOp') / 1e6);
+    } else if (state.trendTab === 'faltas') {
+      const mDist = 1;
+      curr25.push(rows25.length ? sum(rows25,'faltas') / (mDist * 30) : 0);
+      curr24.push(rows24.length ? sum(rows24,'faltas') / (mDist * 30) : 0);
+    } else {
+      const c25 = sum(rows25,'valorContratado'); const f25 = sum(rows25,'fatOp');
+      const c24 = sum(rows24,'valorContratado'); const f24 = sum(rows24,'fatOp');
+      curr25.push(c25 > 0 ? f25/c25*100 : 0);
+      curr24.push(c24 > 0 ? f24/c24*100 : 0);
+    }
+  }
+  const fmtY = v => state.trendTab === 'glosa' ? 'R$'+v.toFixed(1)+'M' : state.trendTab === 'execucao' ? v.toFixed(1)+'%' : v.toFixed(0);
+  if (chartTrendInst) chartTrendInst.destroy();
+  chartTrendInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: '2025', data: curr25, borderColor: '#F97316', borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#F97316', tension: 0.35, fill: false },
+        { label: '2024', data: curr24, borderColor: '#4A6480', borderDash: [4,3], borderWidth: 1.5, pointRadius: 2, tension: 0.35, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#8BA3C0', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { backgroundColor: '#112240', borderColor: '#1E3A5F', borderWidth: 1, titleColor: '#E8EDF5', bodyColor: '#8BA3C0' }
+      },
+      scales: {
+        x: { ticks: { color: '#8BA3C0', font: { size: 11 } }, grid: { color: 'rgba(30,58,95,0.5)' } },
+        y: { ticks: { color: '#8BA3C0', font: { size: 10 }, callback: fmtY }, grid: { color: 'rgba(30,58,95,0.5)' } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  RANKING TOP CREs GLOSA
+// ══════════════════════════════════════════════════
+function detectDeterioracao(creIdx) {
+  // Check last 2 months: if both show increasing glosa, badge deterioração
+  const ano = state.ano;
+  const mMax = state.periodo === 'ytd' ? state.mes : state.mes;
+  if (mMax < 2) return false;
+  const m1 = ALL_DATA[ano].filter(r => r.cre === creIdx && r.mes === mMax - 1);
+  const m2 = ALL_DATA[ano].filter(r => r.cre === creIdx && r.mes === mMax);
+  const m0 = ALL_DATA[ano].filter(r => r.cre === creIdx && r.mes === mMax - 2);
+  if (!m0.length || !m1.length || !m2.length) return false;
+  return sum(m1,'glosaOp') > sum(m0,'glosaOp') && sum(m2,'glosaOp') > sum(m1,'glosaOp');
+}
+
+function renderRankingGlosa() {
+  const rows = getRows();
+  const byCre = CRE_SHORT.map((name, i) => {
+    const cr = rows.filter(r => r.cre === i);
+    return { name, g: sum(cr,'glosaOp'), f: cr.length ? sum(cr,'faltas') / (cr.length / 16) : 0, i };
+  }).sort((a,b) => b.g - a.g).slice(0,8);
+  const maxG = byCre[0]?.g || 1;
+  const t = document.getElementById('ranking-glosa');
+  t.innerHTML = `<thead><tr>
+    <th>#</th><th>CRE</th><th class="right">Glosa</th><th class="right">Status</th>
+  </tr></thead><tbody>` + byCre.map((row, idx) => {
+    const det = detectDeterioracao(row.i);
+    const pct = row.g / maxG * 100;
+    return `<tr>
+      <td class="rank-num">${idx+1}</td>
+      <td>
+        <div class="cre-name">${row.name}</div>
+        <div class="bar-mini mt-4">
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${idx < 3 ? 'var(--red)' : 'var(--orange)'}"></div></div>
+        </div>
+      </td>
+      <td class="val-mono text-right" style="color:var(--red)">${fmt(row.g)}</td>
+      <td class="text-right">${det ? '<span class="badge-deterioracao">↗ Piora</span>' : '<span class="badge-ok">✓</span>'}</td>
+    </tr>`;
+  }).join('') + '</tbody>';
+}
+
+// ══════════════════════════════════════════════════
+//  SCOREBOARD
+// ══════════════════════════════════════════════════
+function renderScoreboard() {
+  const rows = getRows();
+  const items = CRE_SHORT.map((name, i) => {
+    const cr = rows.filter(r => r.cre === i);
+    const c = sum(cr,'valorContratado');
+    const f = sum(cr,'fatOp');
+    const pct = c > 0 ? f / c : 0;
+    const status = pct >= 0.97 ? 'controlada' : pct >= 0.93 ? 'atencao' : 'critica';
+    return { name, c, f, pct, status };
+  });
+  document.getElementById('scoreboard').innerHTML = items.map(it => `
+    <div class="score-item">
+      <div class="score-cre">${it.name}</div>
+      <div class="score-vals">
+        <span class="score-exec">${(it.pct*100).toFixed(1)}%</span>
+        <span class="score-sep">/</span>
+        <span class="score-contr">${fmt(it.c)}</span>
+      </div>
+      <div class="score-status status-${it.status}"></div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  HEATMAP
+// ══════════════════════════════════════════════════
+function renderHeatmap() {
+  const tVerde = parseFloat(document.getElementById('thr-verde').value) || 2;
+  const tAmarelo = parseFloat(document.getElementById('thr-amarelo').value) || 5;
+  const meses = getCurrentMeses();
+  const labels = meses.map(m => MONTHS[m-1]);
+
+  let html = `<div class="heatmap-row">
+    <div class="heatmap-label header">CRE</div>
+    ${labels.map(l => `<div class="heat-header">${l}</div>`).join('')}
+  </div>`;
+
+  for (let c = 0; c < 16; c++) {
+    let cells = '';
+    for (const m of meses) {
+      const rows = ALL_DATA[state.ano].filter(r => r.cre === c && r.mes === m);
+      if (!rows.length) { cells += `<div class="heatmap-cell heat-vazio">—</div>`; continue; }
+      const cont = sum(rows,'valorContratado');
+      const g = sum(rows,'glosaOp');
+      const pct = cont > 0 ? g / cont * 100 : 0;
+      const cls = pct < tVerde ? 'heat-verde' : pct < tAmarelo ? 'heat-amarelo' : 'heat-vermelho';
+      cells += `<div class="heatmap-cell ${cls}" title="${CREs[c]} — ${MONTHS[m-1]}: ${pct.toFixed(2)}%">${pct.toFixed(1)}%</div>`;
+    }
+    html += `<div class="heatmap-row">
+      <div class="heatmap-label" title="${CREs[c]}">${CRE_SHORT[c]}</div>
+      ${cells}
+    </div>`;
+  }
+  document.getElementById('heatmap-container').innerHTML = html;
+
+  // % unidades sem faltas
+  const rows = ALL_DATA[state.ano].filter(r => meses.includes(r.mes));
+  const semFaltas = rows.filter(r => r.faltas === 0).length;
+  const pct = (semFaltas / rows.length * 100).toFixed(1);
+  const el = document.getElementById('pct-sem-faltas');
+  if (el) el.textContent = pct + '%';
+}
+
+// ══════════════════════════════════════════════════
+//  ANALÍTICO CHART
+// ══════════════════════════════════════════════════
+let chartAnaliticoInst = null;
+function renderChartAnalitico() {
+  const ctx = document.getElementById('chartAnalitico').getContext('2d');
+  const meses = getCurrentMeses();
+  const labels = meses.map(m => MONTHS[m-1]);
+  const faturado = [], glosa = [], contratado = [];
+  for (const m of meses) {
+    const rows = ALL_DATA[state.ano].filter(r => r.mes === m);
+    faturado.push(sum(rows,'fatOp') / 1e6);
+    glosa.push(sum(rows,'glosaOp') / 1e6);
+    contratado.push(sum(rows,'valorContratado') / 1e6);
+  }
+  if (chartAnaliticoInst) chartAnaliticoInst.destroy();
+  chartAnaliticoInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Fat. Operacional', data: faturado, backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 3 },
+        { label: 'Glosa', data: glosa, backgroundColor: 'rgba(239,68,68,0.5)', borderRadius: 3 },
+        { label: 'Contratado', data: contratado, type: 'line', borderColor: '#8BA3C0', borderDash: [4,3], borderWidth: 2, pointRadius: 2, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8BA3C0', font: { size: 11 }, boxWidth: 12 } }, tooltip: { backgroundColor: '#112240', borderColor: '#1E3A5F', borderWidth: 1 } },
+      scales: {
+        x: { stacked: true, ticks: { color: '#8BA3C0', font: { size: 11 } }, grid: { color: 'rgba(30,58,95,0.5)' } },
+        y: { stacked: true, ticks: { color: '#8BA3C0', font: { size: 10 }, callback: v => 'R$'+v.toFixed(0)+'M' }, grid: { color: 'rgba(30,58,95,0.5)' } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  RANKING COMPLETO
+// ══════════════════════════════════════════════════
+function renderRankingCompleto() {
+  const rows = getRows();
+  const byCre = CRE_SHORT.map((name, i) => {
+    const cr = rows.filter(r => r.cre === i);
+    const c = sum(cr,'valorContratado');
+    const f = sum(cr,'fatOp');
+    const g = sum(cr,'glosaOp');
+    const pct = c > 0 ? g/c*100 : 0;
+    const status = pct < 2 ? 'ok' : pct < 5 ? 'atencao' : 'deterioracao';
+    return { name, c, f, g, pct, status, i };
+  }).sort((a,b) => b.g - a.g);
+
+  const t = document.getElementById('ranking-completo');
+  t.innerHTML = `<thead><tr>
+    <th>#</th><th>CRE</th><th class="right">Glosa%</th><th class="right">Status</th>
+  </tr></thead><tbody>` + byCre.map((row, idx) => `
+    <tr>
+      <td class="rank-num">${idx+1}</td>
+      <td class="cre-name">${row.name}</td>
+      <td class="val-mono text-right" style="color:${row.pct>=5?'var(--red)':row.pct>=2?'var(--yellow)':'var(--green)'}">${row.pct.toFixed(2)}%</td>
+      <td class="text-right">${row.status==='deterioracao'?'<span class="badge-deterioracao">Crítica</span>':row.status==='atencao'?'<span class="badge-atencao">Atenção</span>':'<span class="badge-ok">✓</span>'}</td>
+    </tr>
+  `).join('') + '</tbody>';
+}
+
+// ══════════════════════════════════════════════════
+//  DEEP DIVE
+// ══════════════════════════════════════════════════
+let ddCharts = [];
+function renderDeepDive() {
+  // chips
+  const chips = document.getElementById('deepdive-chips');
+  chips.innerHTML = CRE_SHORT.map((name, i) =>
+    `<div class="cre-chip ${i===state.deepdiveCre?'active':''}" onclick="setDeepDive(${i})">${name}</div>`
+  ).join('');
+
+  // destroy previous charts
+  ddCharts.forEach(c => c.destroy());
+  ddCharts = [];
+
+  const c = state.deepdiveCre;
+  const rows25 = ALL_DATA[2025].filter(r => r.cre === c);
+  const rows24 = ALL_DATA[2024].filter(r => r.cre === c);
+  const meses = getCurrentMeses();
+
+  const content = document.getElementById('deepdive-content');
+  content.innerHTML = `
+    <div class="card"><div class="card-title" style="margin-bottom:10px">Tendência Glosa — ${CRE_SHORT[c]}</div><div style="height:150px"><canvas id="dd-chart1"></canvas></div></div>
+    <div class="card"><div class="card-title" style="margin-bottom:10px">Faltas/mês — ${CRE_SHORT[c]}</div><div style="height:150px"><canvas id="dd-chart2"></canvas></div></div>
+    <div class="card"><div class="card-title" style="margin-bottom:10px">Comp. Anual % Execução</div><div style="height:150px"><canvas id="dd-chart3"></canvas></div></div>
+  `;
+
+  const makeChart = (id, data) => {
+    const ctx = document.getElementById(id).getContext('2d');
+    const ch = new Chart(ctx, data);
+    ddCharts.push(ch);
+  };
+
+  const glosa25 = MONTHS.map((_,m) => { const r = rows25.filter(x => x.mes===m+1); return sum(r,'glosaOp')/1e3; });
+  const glosa24 = MONTHS.map((_,m) => { const r = rows24.filter(x => x.mes===m+1); return sum(r,'glosaOp')/1e3; });
+  makeChart('dd-chart1', {
+    type:'line', data:{ labels:MONTHS, datasets:[
+      {label:'2025',data:glosa25,borderColor:'#F97316',borderWidth:2,pointRadius:2,tension:0.3,fill:false},
+      {label:'2024',data:glosa24,borderColor:'#4A6480',borderDash:[4,3],borderWidth:1.5,pointRadius:2,tension:0.3,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8BA3C0',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#8BA3C0',font:{size:9}},grid:{color:'rgba(30,58,95,0.4)'}},y:{ticks:{color:'#8BA3C0',font:{size:9},callback:v=>'R$'+v+'K'},grid:{color:'rgba(30,58,95,0.4)'}}}}
+  });
+
+  const faltas25 = MONTHS.map((_,m) => { const r = rows25.filter(x => x.mes===m+1); return sum(r,'faltas'); });
+  makeChart('dd-chart2', {
+    type:'bar', data:{ labels:MONTHS, datasets:[
+      {label:'Faltas',data:faltas25,backgroundColor:'rgba(249,115,22,0.5)',borderRadius:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8BA3C0',font:{size:9}},grid:{color:'rgba(30,58,95,0.4)'}},y:{ticks:{color:'#8BA3C0',font:{size:9}},grid:{color:'rgba(30,58,95,0.4)'}}}}
+  });
+
+  const exec25 = MONTHS.map((_,m) => { const r = rows25.filter(x => x.mes===m+1); const c2=sum(r,'valorContratado'); return c2>0?sum(r,'fatOp')/c2*100:0; });
+  const exec24 = MONTHS.map((_,m) => { const r = rows24.filter(x => x.mes===m+1); const c2=sum(r,'valorContratado'); return c2>0?sum(r,'fatOp')/c2*100:0; });
+  makeChart('dd-chart3', {
+    type:'line', data:{ labels:MONTHS, datasets:[
+      {label:'2025',data:exec25,borderColor:'#F97316',borderWidth:2,pointRadius:2,tension:0.3,fill:false},
+      {label:'2024',data:exec24,borderColor:'#4A6480',borderDash:[4,3],borderWidth:1.5,pointRadius:2,tension:0.3,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8BA3C0',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#8BA3C0',font:{size:9}},grid:{color:'rgba(30,58,95,0.4)'}},y:{ticks:{color:'#8BA3C0',font:{size:9},callback:v=>v.toFixed(0)+'%'},grid:{color:'rgba(30,58,95,0.4)'}}}}
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  TABELA DETALHADA
+// ══════════════════════════════════════════════════
+function renderTabela() {
+  const rows = getRows();
+  const meses = getCurrentMeses();
+  document.getElementById('table-subtitle').textContent = `${rows.length} registros`;
+  const byCre = CRE_SHORT.map((name, i) => {
+    const cr = rows.filter(r => r.cre === i);
+    if (!cr.length) return null;
+    return {
+      name,
+      postos: POSTOS_CRE[i],
+      contratado: sum(cr,'valorContratado'),
+      fatOp: sum(cr,'fatOp'),
+      glosaOp: sum(cr,'glosaOp'),
+      faltas: sum(cr,'faltas'),
+      pct: sum(cr,'valorContratado') > 0 ? sum(cr,'fatOp') / sum(cr,'valorContratado') * 100 : 0
+    };
+  }).filter(Boolean);
+  const t = document.getElementById('tabela-detalhada');
+  t.innerHTML = `<thead><tr>
+    <th>CRE</th><th>Postos</th><th>Contratado</th><th>Fat. Op.</th><th>Glosa</th><th>Faltas</th><th>% Exec</th>
+  </tr></thead><tbody>` + byCre.map(r => `
+    <tr>
+      <td class="text">${r.name}</td>
+      <td>${r.postos}</td>
+      <td>${fmt(r.contratado)}</td>
+      <td>${fmt(r.fatOp)}</td>
+      <td style="color:var(--red)">${fmt(r.glosaOp)}</td>
+      <td>${r.faltas.toLocaleString('pt-BR')}</td>
+      <td style="color:${r.pct>=97?'var(--green)':r.pct>=93?'var(--yellow)':'var(--red)'}">${r.pct.toFixed(2)}%</td>
+    </tr>
+  `).join('') + '</tbody>';
+}
+
+// ══════════════════════════════════════════════════
+//  COMPARATIVO ANUAL
+// ══════════════════════════════════════════════════
+let chartCompInst = null;
+function renderComparativo() {
+  const ctx = document.getElementById('chartComparativo').getContext('2d');
+  const glosa25 = MONTHS.map((_,m) => { const r = ALL_DATA[2025].filter(x => x.mes===m+1); return sum(r,'glosaOp')/1e6; });
+  const glosa24 = MONTHS.map((_,m) => { const r = ALL_DATA[2024].filter(x => x.mes===m+1); return sum(r,'glosaOp')/1e6; });
+  if (chartCompInst) chartCompInst.destroy();
+  chartCompInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        { label: '2025', data: glosa25, backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 3 },
+        { label: '2024', data: glosa24, backgroundColor: 'rgba(74,100,128,0.5)', borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8BA3C0', font: { size: 11 }, boxWidth: 12 } }, tooltip: { backgroundColor: '#112240', borderColor: '#1E3A5F', borderWidth: 1 } },
+      scales: {
+        x: { ticks: { color: '#8BA3C0', font: { size: 11 } }, grid: { color: 'rgba(30,58,95,0.5)' } },
+        y: { ticks: { color: '#8BA3C0', font: { size: 10 }, callback: v => 'R$'+v.toFixed(1)+'M' }, grid: { color: 'rgba(30,58,95,0.5)' } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  POPULATE FILTERS
+// ══════════════════════════════════════════════════
+function populateFilters() {
+  const sel = document.getElementById('filterCre');
+  sel.innerHTML = '<option value="todas">Todas</option>' +
+    CRE_SHORT.map((name, i) => `<option value="${i}">${name}</option>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  EVENT HANDLERS
+// ══════════════════════════════════════════════════
+function showPage(page, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('vis-toggle-wrap').style.display = page === 'executiva' ? 'flex' : 'none';
   if (page === 'analitica') {
-    setTimeout(() => { const {meses, cres} = getFilters(); buildAnalytica(meses, cres); }, 50);
+    setTimeout(() => {
+      renderHeatmap();
+      renderChartAnalitico();
+      renderRankingCompleto();
+      renderDeepDive();
+      renderTabela();
+      renderComparativo();
+    }, 50);
   }
 }
 
-function toggleMesFilter() {
-  const v = document.getElementById('f-periodo').value;
-  document.getElementById('f-mes').style.display = v === 'mes' ? 'block' : 'none';
-  updateDash();
+function setPeriodo(mode) {
+  state.periodo = mode;
+  document.getElementById('btn-ytd').classList.toggle('active', mode === 'ytd');
+  document.getElementById('btn-mes').classList.toggle('active', mode === 'mes');
+  document.getElementById('filter-mes-ref').style.display = mode === 'mes' ? 'flex' : 'none';
+  renderAll();
 }
 
-function setTheme(t, el) {
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  document.body.classList.toggle('navy-quente', t === 'quente');
+function setVis(v) {
+  state.vis = v;
+  document.getElementById('vis-exec').classList.toggle('active', v === 'executiva');
+  document.getElementById('vis-tec').classList.toggle('active', v === 'tecnica');
+  renderAll();
+}
+function setAVis(v) {
+  state.avis = v;
+  document.getElementById('avis-exec').classList.toggle('active', v === 'executiva');
+  document.getElementById('avis-tec').classList.toggle('active', v === 'tecnica');
+  renderHeatmap();
 }
 
-function setMeth(m, el) {
-  document.querySelectorAll('.meth-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  currentMeth = m;
-  updateDash();
+function applyFilters() {
+  state.ano = parseInt(document.getElementById('filterAno').value);
+  state.mes = parseInt(document.getElementById('filterMes').value);
+  state.cre = document.getElementById('filterCre').value;
+  renderAll();
 }
 
-function setTrend(t, el) {
-  document.querySelectorAll('.trend-tab').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  currentTrend = t;
-  const { meses, cres } = getFilters();
-  buildMainChart(meses, cres);
+function setTrendTab(tab, btn) {
+  state.trendTab = tab;
+  document.querySelectorAll('#trend-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrend();
 }
 
-// Date
-document.getElementById('topbar-date').textContent =
-  new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+function setDeepDive(i) {
+  state.deepdiveCre = i;
+  renderDeepDive();
+}
 
-// Init
-updateDash();
+let themeWarm = false;
+function toggleTheme() {
+  themeWarm = !themeWarm;
+  document.body.classList.toggle('theme-warm', themeWarm);
+  document.getElementById('themeToggle').classList.toggle('on', themeWarm);
+}
+
+function renderAll() {
+  renderKPIs();
+  renderNarrative();
+  renderChartMain();
+  renderTrend();
+  renderRankingGlosa();
+  renderScoreboard();
+  // If analítica is visible
+  if (document.getElementById('page-analitica').classList.contains('active')) {
+    renderHeatmap();
+    renderChartAnalitico();
+    renderRankingCompleto();
+    renderDeepDive();
+    renderTabela();
+    renderComparativo();
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+populateFilters();
+document.getElementById('vis-toggle-wrap').style.display = 'flex';
+// Default: YTD até Dez (mês 12)
+state.mes = 12;
+state.periodo = 'ytd';
+renderAll();
 </script>
 </body>
 </html>
